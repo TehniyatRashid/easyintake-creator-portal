@@ -1,0 +1,1005 @@
+<!doctype html><html><head><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>EasyIntake Creator Portal</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Manrope:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: glass sidebar + sticky top bar, one content column. Same deep-blue frosted language as ReBump. */
+/* EasyIntake palette: orange #F05A28 on warm cream, navy ink. Light default, navy night mode. */
+:root{
+  --bg:#FBF8F2;--glow1:rgba(240,90,40,.20);--glow2:rgba(255,170,110,.22);--glow3:rgba(13,31,61,.07);
+  --surface:rgba(255,255,255,.72);--surface2:rgba(240,90,40,.07);--solid:#FFFFFF;--hi:rgba(255,255,255,.9);
+  --line:rgba(13,31,61,.11);--line2:rgba(13,31,61,.20);--tint:rgba(240,90,40,.10);--tint2:rgba(240,90,40,.06);
+  --fg:#0D1F3D;--muted:#3D4A66;--faint:#8A5F45;--vgrad:linear-gradient(var(--fg),var(--fg));
+  --accent:#F05A28;--accent-ink:#FFFFFF;--accent-soft:rgba(240,90,40,.12);--accent2:#EF7B45;
+  --good:#0B8F63;--good-soft:rgba(11,143,99,.12);--warn:#C2410C;--warn-soft:rgba(240,90,40,.12);--bad:#D03A4A;--bad-soft:rgba(208,58,74,.12);
+  --shadow:0 12px 36px -18px rgba(120,60,20,.35);--blur:blur(22px) saturate(160%);
+  --f-display:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;--f-body:"Manrope","Helvetica Neue",Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#080504;--glow1:rgba(240,90,40,.38);--glow2:rgba(255,140,60,.14);--glow3:rgba(200,60,20,.22);
+  --surface:rgba(255,120,50,.07);--surface2:rgba(255,120,50,.10);--solid:#170D08;--hi:rgba(255,170,110,.14);
+  --line:rgba(255,140,80,.20);--line2:rgba(255,140,80,.34);--tint:rgba(255,122,69,.18);--tint2:rgba(255,122,69,.09);
+  --fg:#FFF3E8;--muted:#F3CDB4;--faint:#D9A07C;--vgrad:linear-gradient(180deg,#FFFFFF,#FFB98F);
+  --accent:#FF6A2B;--accent-ink:#1A0800;--accent-soft:rgba(255,106,43,.18);--accent2:#FFA05E;
+  --good:#3FDDAA;--good-soft:rgba(63,221,170,.15);--warn:#FFC24D;--warn-soft:rgba(255,106,43,.16);--bad:#FF7C8C;--bad-soft:rgba(255,124,140,.16);
+  --shadow:0 18px 50px -16px rgba(0,0,0,.8);color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#080504;--glow1:rgba(240,90,40,.38);--glow2:rgba(255,140,60,.14);--glow3:rgba(200,60,20,.22);
+  --surface:rgba(255,120,50,.07);--surface2:rgba(255,120,50,.10);--solid:#170D08;--hi:rgba(255,170,110,.14);
+  --line:rgba(255,140,80,.20);--line2:rgba(255,140,80,.34);--tint:rgba(255,122,69,.18);--tint2:rgba(255,122,69,.09);
+  --fg:#FFF3E8;--muted:#F3CDB4;--faint:#D9A07C;--vgrad:linear-gradient(180deg,#FFFFFF,#FFB98F);
+  --accent:#FF6A2B;--accent-ink:#1A0800;--accent-soft:rgba(255,106,43,.18);--accent2:#FFA05E;
+  --good:#3FDDAA;--good-soft:rgba(63,221,170,.15);--warn:#FFC24D;--warn-soft:rgba(255,106,43,.16);--bad:#FF7C8C;--bad-soft:rgba(255,124,140,.16);
+  --shadow:0 18px 50px -16px rgba(0,0,0,.8);color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(900px 560px at 8% -8%,var(--glow1),transparent 62%),radial-gradient(760px 520px at 100% 2%,var(--glow2),transparent 58%),radial-gradient(700px 500px at 60% 110%,var(--glow3),transparent 60%),var(--bg);background-attachment:fixed;color:var(--fg);font:14px/1.5 var(--f-body);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+h1,h2,h3{font-family:var(--f-display);margin:0;letter-spacing:-.01em;text-wrap:balance}
+.num{font-variant-numeric:tabular-nums}.muted{color:var(--muted)}.faint{color:var(--faint)}
+.app{display:grid;grid-template-columns:240px minmax(0,1fr);min-height:100vh}
+.side{position:sticky;top:0;height:100vh;background:var(--surface);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:16px 12px;gap:4px;z-index:30;overflow-y:auto}
+.brand{display:flex;align-items:center;gap:12px;padding:4px 8px 16px}
+.mark{width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;color:var(--accent-ink);box-shadow:0 0 24px -4px var(--accent)}
+.brand b{font:700 20px var(--f-display);letter-spacing:-.02em}.brand small{display:block;color:var(--faint);font-size:11.5px;margin-top:-3px}
+.grp{font-size:11.5px;color:var(--faint);padding:16px 10px 4px;font-weight:600;letter-spacing:.04em}
+.nav{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;border:0;background:none;color:var(--muted);text-align:left;width:100%;font-weight:500;transition:background .2s,color .2s}
+.nav:hover{background:var(--surface2);color:var(--fg)}
+.nav.on{background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--accent-ink);box-shadow:0 8px 20px -10px var(--accent)}.nav.on .cnt{background:rgba(255,255,255,.28);color:inherit}
+.nav .cnt{margin-left:auto;font-size:11px;background:var(--surface2);padding:1px 8px;border-radius:99px;color:var(--muted)}
+.foot{margin-top:auto;padding:12px 8px 2px;border-top:1px solid var(--line);display:flex;gap:10px;align-items:center}
+.av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;line-height:1;font:600 12px var(--f-display);color:#fff;flex:none}
+.main{min-width:0;display:flex;flex-direction:column}
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:10px 28px;background:color-mix(in srgb,var(--bg) 55%,transparent);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border-bottom:1px solid var(--line2)}
+.grow{flex:1}
+.page{width:100%;max-width:1280px;margin:0 auto;padding:34px 28px 64px;display:flex;flex-direction:column;gap:26px}
+.ph{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap}.ph .t{flex:1;min-width:240px}
+.ph h1{font-size:32px;line-height:1.12}.ph p{margin:6px 0 0;color:var(--muted);max-width:64ch}
+.btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line2);background:var(--surface);padding:8px 15px;border-radius:12px;font-weight:500;white-space:nowrap;transition:box-shadow .2s,border-color .2s}
+.btn:hover{border-color:var(--accent);box-shadow:0 8px 22px -10px var(--accent)}
+.btn.sm{padding:5px 11px;font-size:12.5px;border-radius:9px}
+.card{background:linear-gradient(150deg,var(--hi),transparent 60%),var(--surface);border:1px solid var(--line);border-radius:20px;min-width:0;backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);box-shadow:var(--shadow),inset 0 1px 0 var(--hi)}
+.pad{padding:22px}
+.ch{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}.ch h3{font-size:17px;flex:1}
+.grid{display:grid;gap:20px}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g5{grid-template-columns:repeat(5,minmax(0,1fr))}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g21{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)}
+.kpi{padding:20px 22px;display:flex;flex-direction:column;gap:4px;transition:transform .25s,border-color .25s}
+.kpi:hover{transform:translateY(-3px);border-color:var(--accent)}
+.kpi .l{color:var(--muted);font-size:13px}
+.kpi .v{font:600 34px/1.1 var(--f-display);letter-spacing:-.02em;font-variant-numeric:tabular-nums;background:var(--vgrad);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+.kpi .d{font-size:12.5px;color:var(--muted)}
+.src{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:var(--faint);margin-top:6px}
+.src:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent2)}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;padding:2px 10px;border-radius:99px;background:var(--surface2);color:var(--muted);white-space:nowrap}
+.pill:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.pill.good{background:var(--good-soft);color:var(--good)}.pill.warn{background:var(--warn-soft);color:var(--warn)}.pill.bad{background:var(--bad-soft);color:var(--bad)}.pill.acc{background:var(--accent-soft);color:var(--accent)}
+.scroll{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;min-width:640px}
+.tbl th{font-size:12.5px;font-weight:500;color:var(--muted);text-align:left;padding:12px 18px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl td{padding:15px 18px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:0}.tbl tbody tr:hover{background:var(--tint2)}.tbl tbody tr.click{cursor:pointer}
+.r{text-align:right}
+.cell{display:flex;align-items:center;gap:10px;min-width:0}.cell b{font-weight:600;display:block}.cell span{color:var(--faint);font-size:12.5px;display:block}.cell .av{display:grid;color:#fff;font-size:12px}
+.bar{height:8px;background:var(--surface2);border-radius:99px;overflow:hidden;min-width:60px}
+.bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent2));box-shadow:0 0 12px -2px var(--accent)}
+.bar.bad i{background:linear-gradient(90deg,var(--bad),var(--warn));box-shadow:none}
+.seg{display:inline-flex;background:var(--tint);border-radius:13px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{border:0;background:none;padding:6px 14px;border-radius:10px;color:var(--muted);font-weight:500}
+.seg button.on{background:var(--solid);color:var(--fg);box-shadow:0 2px 10px -4px rgba(0,0,0,.25)}
+.sel{background:var(--surface2);border:1px solid var(--line2);border-radius:12px;padding:7px 11px}
+.sel option{color:#0D1F3D}
+.funnel{display:flex;flex-direction:column;gap:14px}
+.frow{display:grid;grid-template-columns:150px minmax(0,1fr) 120px;gap:14px;align-items:center}
+.frow .bar{height:14px}.frow small{color:var(--faint)}
+.reasons{display:flex;flex-direction:column;gap:14px}
+.rrow{display:grid;grid-template-columns:minmax(0,1fr) 36px;gap:6px 14px}.rrow .bar{grid-column:1/-1}
+.banner{display:flex;gap:12px;align-items:center;padding:12px 18px;border-radius:14px;background:var(--accent-soft);color:var(--fg);border:1px solid var(--line2);flex-wrap:wrap}
+.banner .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex:none}
+.ov{position:fixed;inset:0;z-index:60;background:rgba(8,5,4,.6);backdrop-filter:blur(6px);display:flex;justify-content:flex-end}
+.sheet{width:min(560px,100%);height:100%;background:linear-gradient(180deg,var(--tint),transparent 40%),var(--solid);border-left:1px solid var(--line2);display:flex;flex-direction:column;box-shadow:var(--shadow)}
+.sh{display:flex;align-items:center;gap:12px;padding:18px 22px;border-bottom:1px solid var(--line)}.sh h3{flex:1;font-size:19px}
+.sb{padding:22px;overflow-y:auto;display:flex;flex-direction:column;gap:22px}
+.kv{display:grid;grid-template-columns:130px 1fr;gap:10px 16px}.kv span{color:var(--faint)}.kv b{font-weight:500}
+.tl{display:flex;flex-direction:column;gap:0}
+.tl div{display:flex;gap:12px;align-items:center;padding:10px 0;line-height:20px;color:var(--faint)}.tl div i{width:12px;height:12px;border-radius:50%;border:2px solid var(--line2);flex:none;position:relative}.tl div:not(:last-child) i:after{content:"";position:absolute;left:calc(50% - 1px);top:100%;height:24px;border-left:2px dotted var(--line2);margin-top:2px}.tl div.done:not(:last-child) i:after{border-left-color:var(--accent)}
+.tl div.done{color:var(--fg)}.tl div.done i{background:var(--accent);border-color:var(--accent);box-shadow:0 0 10px var(--accent)}
+.note{background:var(--tint2);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.ph h1,.card h3,.sb h3{text-transform:capitalize}.sh h3{text-transform:none}
+.board{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(250px,1fr);gap:14px;overflow-x:auto;padding-bottom:8px;align-items:start}
+.kcol{background:var(--tint2);border:1px solid var(--line);border-radius:18px;padding:12px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.khead{display:flex;align-items:center;justify-content:space-between;padding:2px 4px}
+.kbody{display:flex;flex-direction:column;gap:10px}
+.kcard{background:var(--solid);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;cursor:pointer;transition:transform .2s,border-color .2s;box-shadow:var(--shadow)}
+.kcard:hover{transform:translateY(-2px);border-color:var(--accent)}
+.kmeta{color:var(--faint);font-size:12.5px}.kreel{font-size:13px}
+.kreason{font-size:12.5px;color:var(--accent);background:var(--accent-soft);border-radius:8px;padding:4px 8px}
+.kfoot{display:flex;align-items:center;gap:8px;font-size:12px;margin-top:2px}
+.list{display:flex;flex-direction:column}.li{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);cursor:pointer}.li:last-child{border-bottom:0}.li .tx{flex:1;min-width:0}.li .tx span{display:block;color:var(--muted);font-size:12.5px}.li:hover .tx b{color:var(--accent)}.dot{width:8px;height:8px;border-radius:50%;background:var(--faint);flex:none}.dot.good{background:var(--good)}.dot.warn{background:var(--warn)}.dot.acc{background:var(--accent)}
+.flag{font-size:16px;margin-right:6px}.loc{white-space:nowrap}
+.rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px}
+.rcard{padding:12px;display:flex;flex-direction:column;gap:12px;transition:transform .25s,border-color .25s}.rcard:hover{transform:translateY(-3px);border-color:var(--accent)}
+a.rthumb{text-decoration:none;cursor:pointer}.rlink{color:inherit;text-decoration:none}.rlink:hover b{color:var(--accent);text-decoration:underline}
+.rthumb{position:relative;aspect-ratio:9/13;border-radius:14px;overflow:hidden;color:#fff;display:flex;flex-direction:column;justify-content:flex-end;padding:12px}
+.rthumb:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,.6))}
+.rthumb>*{position:relative;z-index:1}
+.rplay{position:absolute!important;top:50%;left:50%;transform:translate(-50%,-50%);width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.28);backdrop-filter:blur(6px);display:grid;place-items:center}
+.rviews{position:absolute!important;top:10px;left:10px;font-size:12px;font-weight:600;background:rgba(0,0,0,.35);padding:3px 9px;border-radius:99px}
+.rtitle{font:600 14px/1.25 var(--f-display);text-shadow:0 1px 6px rgba(0,0,0,.4)}
+.rstats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.rstats div{display:flex;flex-direction:column}.rstats b{font:600 18px var(--f-display)}.rstats span{font-size:11.5px;color:var(--faint)}
+.rpill{display:inline-flex;align-items:center;gap:8px;padding:4px 10px 4px 12px;border-radius:99px;font-size:12px;font-weight:600;background:var(--surface2);border:1px solid var(--line);white-space:nowrap}
+.rpill i{width:9px;height:9px;border-radius:50%;background:var(--c);box-shadow:0 0 8px 2px var(--c);border:1px solid rgba(255,255,255,.55)}
+.rpill.on-img{position:absolute!important;top:10px;right:10px;background:rgba(10,8,6,.6);color:#fff;border-color:rgba(255,255,255,.2);backdrop-filter:blur(8px)}
+.info{position:relative;display:inline-grid;place-items:center;vertical-align:middle;margin-left:6px;color:var(--faint);-webkit-text-fill-color:currentColor;text-transform:none;cursor:help;border-radius:50%}
+.info:hover,.info:focus{color:var(--accent);outline:0}
+.info:after{content:attr(data-tip);position:absolute;right:-8px;left:auto;top:calc(100% + 8px);width:max-content;max-width:240px;padding:7px 12px;border-radius:10px;background:var(--solid);color:var(--fg);border:1px solid var(--line2);box-shadow:var(--shadow);font:500 12.5px/1.4 var(--f-body);letter-spacing:0;opacity:0;pointer-events:none;transition:opacity .15s;z-index:5}
+.info:hover:after,.info:focus:after{opacity:1}
+.callcard{cursor:pointer;transition:transform .25s,border-color .25s}.callcard:hover{transform:translateY(-3px);border-color:var(--accent)}
+.btn.pri{background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--accent-ink);border-color:transparent;box-shadow:0 8px 22px -10px var(--accent)}.btn.pri:hover{filter:brightness(1.06)}.btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+.lbln{display:none}
+.ov.mid{justify-content:center;align-items:center;padding:16px}.sheet.cs{height:auto;max-height:calc(100% - 8px);width:min(560px,100%);border:1px solid var(--line2);border-radius:20px}
+.flab{font-weight:600;margin-bottom:8px}
+.topics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.topic{text-align:left;border:1px solid var(--line2);background:var(--surface2);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:3px;transition:border-color .2s,background .2s}
+.topic span{color:var(--faint);font-size:12.5px}.topic:hover{border-color:var(--accent)}
+.topic.on{border-color:var(--accent);background:var(--accent-soft)}.topic.urgent.on{border-color:var(--bad);background:var(--bad-soft)}
+.chipsrow{display:flex;gap:8px;flex-wrap:wrap}.chipb{border:1px solid var(--line2);background:var(--surface2);border-radius:10px;padding:6px 12px;font-weight:500}.chipb:hover{border-color:var(--accent)}.chipb.on{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+@media (max-width:640px){.topics{grid-template-columns:1fr}.lblw{display:none}.lbln{display:inline}}
+/* creator portal v2 */
+.jrow{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+.jstep{border:1px solid var(--line);background:var(--tint2);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:2px;text-align:left;transition:border-color .2s,transform .2s}
+.jstep:hover{border-color:var(--accent);transform:translateY(-2px)}.jstep b{font:600 26px var(--f-display)}.jstep span{color:var(--muted);font-size:12.5px}
+.rngrow{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px}.dates{display:flex;gap:8px;align-items:center}.dates .sel{padding:5px 9px}
+.tsum{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}.tsum b{font:600 30px var(--f-display)}
+.cwrap{position:relative}.ctip{position:absolute;top:0;transform:translateX(-50%);background:var(--solid);border:1px solid var(--line2);border-radius:10px;padding:7px 11px;display:flex;flex-direction:column;gap:1px;font-size:12.5px;box-shadow:var(--shadow);pointer-events:none;white-space:nowrap;z-index:3}
+.ctip span{color:var(--muted)}.ctip[hidden]{display:none}
+.thead{display:flex;justify-content:space-between;color:var(--faint);font-size:12.5px;font-weight:600;padding:0 2px 8px;border-bottom:1px solid var(--line)}
+.trow{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}.trow:last-child{border-bottom:0}
+.tthumb{width:46px;height:60px;border-radius:10px;flex:none;display:grid;place-items:center;color:#fff;text-decoration:none}
+.tmain{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.tmain b{font-weight:600}.tmain .bar{height:6px;margin-top:3px}
+.tnum{text-align:right;display:flex;flex-direction:column}.tnum b{font:600 22px var(--f-display)}.tnum span{font-size:11.5px;color:var(--faint)}
+.kpi.clk{cursor:pointer}.khint{margin-top:6px;color:var(--accent);font-size:12.5px;font-weight:600;display:inline-flex;align-items:center;gap:4px}
+.segscroll{max-width:100%;overflow-x:auto;flex-wrap:nowrap;align-self:flex-start}.segscroll button{white-space:nowrap}
+.lrows{display:flex;flex-direction:column}
+.lrow{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1.3fr) minmax(0,1.8fr) minmax(0,1.1fr) minmax(0,1fr) minmax(0,1.1fr);gap:14px;align-items:center;padding:14px 10px;border-bottom:1px solid var(--line)}
+.lrow.click{cursor:pointer;border-radius:12px;transition:background .2s}.lrow.click:hover{background:var(--tint2)}
+.lhead{color:var(--faint);font-size:12.5px;font-weight:600;padding-top:6px;padding-bottom:10px}
+.lc-name b{display:block;font-weight:600}.lc-name span{color:var(--faint);font-size:12.5px}
+.crow{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.3fr)}.xrow{grid-template-columns:minmax(0,1.1fr) minmax(0,1.3fr) minmax(0,1.8fr) minmax(0,1fr)}
+.dtabs{display:flex;gap:2px;padding:0 14px;box-shadow:inset 0 -1px 0 var(--line);overflow-x:auto;overflow-y:hidden;flex:none;scrollbar-width:none}.dtabs::-webkit-scrollbar{display:none}.sheet .sb{overscroll-behavior:contain}
+.dtabs button{border:0;background:none;padding:13px 14px 12px;flex:none;color:var(--muted);font-weight:500;border-bottom:2px solid transparent;margin-bottom:0;white-space:nowrap}
+.dtabs button.on{color:var(--fg);border-color:var(--accent)}
+.chips2{display:flex;gap:8px;flex-wrap:wrap}
+.thread{display:flex;flex-direction:column;gap:12px}
+.msg{max-width:90%;border:1px solid var(--line);border-radius:14px;padding:10px 14px;background:var(--tint2);display:flex;flex-direction:column;gap:6px}
+.msg.out{align-self:flex-end;background:var(--accent-soft);border-color:var(--line2)}
+.mh{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12.5px}.mh .mt{margin-left:auto}
+.chb{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:11.5px;padding:1px 9px;border-radius:99px;border:1px solid var(--c);color:var(--fg)}
+.chb:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--c)}
+.mb{font-size:14px}
+.guide{border-bottom:1px solid var(--line);padding:10px 0}.guide summary{cursor:pointer;font-weight:600}.guide p{margin:8px 0 0;color:var(--muted)}
+.mini3 .note{display:flex;flex-direction:column;gap:4px}.big{font:600 22px var(--f-display)}
+.sheet.cs.wide{width:min(820px,100%)}
+.kv span,.tl div span,.lc-name span,.lhead span,.thead span{text-transform:capitalize}
+.btn,.pill,.nav,.seg button,.chipb,.topic b,.flab,.kpi .l,.khint,.dtabs button,.li .tx,.jstep span,.tbl th,.guide summary,.chb{text-transform:capitalize}
+.li .tx span{text-transform:none}.lc-name span{text-transform:none}
+@media (max-width:1100px){.jrow{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:760px){
+ .lrow{grid-template-columns:minmax(0,1fr) auto;gap:6px 12px}.lrow .lc-reel,.lrow .lc-co,.lrow .lc-docs,.lhead{display:none}
+ .lrow .lc-st{grid-column:2;grid-row:1/3}.lrow .lc-loc{grid-column:1}
+ .crow,.xrow{grid-template-columns:minmax(0,1fr) auto}.crow>*:nth-child(n+3):not(:last-child){display:none}.crow>:nth-child(2){display:block}
+ .xrow>*:nth-child(3){grid-column:1/-1}
+ .jrow{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+.cc-top{display:flex;gap:12px;align-items:flex-start}.cc-score{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11.5px}
+.cc-pills{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 4px}
+.cc-next{background:var(--tint2);border:1px solid var(--line);border-radius:12px;padding:10px 12px}.cc-next div{margin-top:2px}
+.cc-over{display:flex;gap:14px;align-items:center}
+.ring{width:46px;height:46px;border-radius:50%;background:conic-gradient(var(--accent) calc(var(--p)*1%),var(--tint) 0);display:grid;place-items:center;position:relative;flex:none}
+.ring:before{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--solid)}.ring b{position:relative;font-size:13px}
+.callist{min-width:1180px}.lrow.cl{grid-template-columns:minmax(0,1.1fr) minmax(0,.7fr) minmax(0,1fr) minmax(0,.6fr) minmax(0,.9fr) minmax(0,1.1fr) minmax(0,2fr) minmax(0,1.8fr);align-items:center}
+.cl-text{font-size:13.5px;color:var(--muted)}
+@media (max-width:760px){.callist{min-width:0}.lrow.cl{grid-template-columns:minmax(0,1fr) auto}.lrow.cl>*:nth-child(3),.lrow.cl>*:nth-child(5){display:none}.lrow.cl>*:nth-child(n+7){grid-column:1/-1}.lrow.cl>*:nth-child(2){display:block}.lrow.cl>*:nth-child(4){grid-column:2;grid-row:1}.lrow.cl>*:nth-child(1){grid-column:1}.lrow.cl>*:nth-child(6){grid-column:1}}
+.mthumb{display:inline-grid;place-items:center;border-radius:7px;color:#fff;flex:none}.srcv{display:flex;align-items:center;gap:10px}.srcv span{min-width:0;text-transform:none;color:inherit;font-size:inherit}
+.srcicon{background:var(--tint);color:var(--accent);border:1px solid var(--line2)}
+.sbar{display:flex;height:12px;border-radius:99px;overflow:hidden;background:var(--tint);gap:2px;margin:4px 0 16px}.sbar i{display:block;height:100%}
+.slegend{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.sitem{display:flex;gap:10px;align-items:flex-start}.sdot{width:10px;height:10px;border-radius:50%;margin-top:6px;flex:none}.sitem span:not(.sdot){text-transform:none}
+@media (max-width:760px){.slegend{grid-template-columns:1fr}}
+.tl div.cur i{background:var(--accent);border-color:var(--accent2);box-shadow:0 0 0 4px var(--accent-soft),0 0 16px 4px var(--accent);animation:glow 2s ease-in-out infinite}
+.nowpop{display:inline-block;font-size:11.5px;font-weight:600;color:var(--accent-ink);background:linear-gradient(135deg,var(--accent),var(--accent2));padding:2px 10px;border-radius:99px;box-shadow:0 0 14px 1px var(--accent);text-transform:none;animation:glow2 2s ease-in-out infinite}
+.tl div.cur>span:first-of-type{font-weight:600}
+@keyframes glow{50%{box-shadow:0 0 0 6px var(--accent-soft),0 0 22px 7px var(--accent)}}@keyframes glow2{50%{box-shadow:0 0 22px 4px var(--accent)}}
+@media (prefers-reduced-motion:reduce){.tl div.cur i,.nowpop{animation:none}}
+.jtl{position:relative;display:grid;grid-template-columns:repeat(11,minmax(0,1fr));padding:46px 0 6px}
+.jtl:before{content:"";position:absolute;left:4.5%;right:4.5%;top:calc(46px + 22px);border-top:2px dotted var(--accent);opacity:.7;filter:drop-shadow(0 0 6px var(--accent))}
+.jn{position:relative;background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:10px;padding:0 4px;color:inherit}
+.jc{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font:600 19px var(--f-display);background:var(--solid);border:2px solid var(--accent);box-shadow:0 0 0 4px var(--accent-soft),0 0 18px 2px var(--accent);position:relative;z-index:1;transition:transform .2s,box-shadow .2s}
+
+.jl{font-size:11.5px;line-height:1.25;color:var(--muted);text-align:center;text-transform:capitalize}
+.jn:hover .jc,.jn:focus-visible .jc{transform:scale(1.12);box-shadow:0 0 0 6px var(--accent-soft),0 0 28px 6px var(--accent)}
+.jpop{position:absolute;bottom:calc(100% + 10px);left:50%;transform:translate(-50%,6px);min-width:170px;padding:10px 14px;border-radius:14px;background:var(--solid);border:1px solid var(--accent);box-shadow:0 0 24px -2px var(--accent),var(--shadow);display:flex;flex-direction:column;gap:2px;text-align:left;font-size:12.5px;opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;z-index:5;text-transform:none}
+.jpop b{font:600 15px var(--f-display)}.jpop .jeg{color:var(--muted)}.jpop .jgo{color:var(--accent);font-weight:600;margin-top:4px}
+.jn:hover .jpop,.jn:focus-visible .jpop{opacity:1;transform:translate(-50%,0)}
+@media (max-width:760px){
+ .jtl{grid-template-columns:1fr;gap:6px;padding:4px 0 0 4px}.jtl:before{left:29px;right:auto;top:30px;bottom:30px;border-top:0;border-left:2px dotted var(--accent)}
+ .jn{flex-direction:row;gap:14px;padding:6px 0}.jl{font-size:14px;color:var(--fg)}
+ .jpop{bottom:auto;top:50%;left:70px;transform:translate(0,-50%);min-width:150px}.jn:hover .jpop,.jn:focus-visible .jpop{transform:translate(0,-50%)}
+}
+@media (prefers-reduced-motion:reduce){.jc,.jpop{transition:none}}
+#stg{scroll-margin-top:84px}
+.egms{flex-basis:100%;margin-left:22px;display:flex;align-items:center;gap:10px}.egms .bar{flex:1;max-width:220px;height:6px}
+.tl div{flex-wrap:wrap}.tl div.hold i{border-color:var(--warn)}.tl div.hold.cur i{background:var(--warn);box-shadow:0 0 0 4px var(--warn-soft),0 0 16px 4px var(--warn)}
+.jn.hold .jc{border-color:var(--warn);box-shadow:0 0 0 4px var(--warn-soft),0 0 18px 2px var(--warn)}
+.jn.fin .jc{background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--accent-ink)}
+.pf{display:inline-flex;align-items:center;gap:8px}.pf i{width:9px;height:9px;border-radius:50%;box-shadow:0 0 8px 1px currentColor}
+.pfrow{margin:0 0 10px}.pdot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;box-shadow:0 0 8px 1px currentColor}
+.tp{display:flex;align-items:center;gap:6px}.tp i{width:7px;height:7px;border-radius:50%}
+.tplat{width:124px;flex:none;font-size:13px}.pfm{display:none}
+@media (max-width:640px){.tplat{display:none}.pfm{display:block}}
+.tline{display:grid;grid-template-columns:48px 78px 1fr;gap:10px;padding:6px 0;border-bottom:1px solid var(--line)}.tline:last-of-type{border-bottom:0}.tr{padding:10px 16px}
+.empty{padding:36px;text-align:center;color:var(--muted)}
+.toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--accent);color:var(--accent-ink);padding:9px 16px;border-radius:11px;font-weight:500;z-index:90;box-shadow:0 12px 34px -10px var(--accent)}
+.menu{display:none}
+@media (max-width:1100px){.g5{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.g21{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:900px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .side{position:fixed;left:0;top:0;bottom:0;width:250px;transform:translateX(-100%);transition:transform .2s}
+  body.open .side{transform:none}
+  .menu{display:inline-flex}.top{padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px))}
+  .page{padding:22px max(16px,env(safe-area-inset-right,0px)) 56px max(16px,env(safe-area-inset-left,0px))}
+}
+@media (max-width:640px){.rgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.rcard{padding:8px;gap:8px}.rtitle{font-size:12.5px}.rstats b{font-size:15px}.rstats span{font-size:10.5px}.rpill.on-img{top:8px;right:8px;padding:3px 8px 3px 10px;font-size:11px}.rviews{font-size:11px!important;top:40px!important;left:8px!important}.g4,.g5{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.g3,.g2{grid-template-columns:minmax(0,1fr)}.kpi{padding:16px}.kpi .v{font-size:28px}.kpi .l,.kpi .d{font-size:12px}.top .pill{display:none}.top .cell b{white-space:nowrap}.top .cell>div{min-width:0}.top .cell span:not(.av){white-space:nowrap}.ph h1{font-size:26px}.frow{grid-template-columns:1fr 90px}.frow .bar{grid-column:1/-1;order:3}.kv{grid-template-columns:1fr;gap:2px}.kv b{margin-bottom:8px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="app">
+  <aside class="side" id="side"></aside>
+  <div class="main">
+    <header class="top" id="top"></header>
+    <main class="page" id="page"></main>
+  </div>
+</div>
+<div id="ov"></div>
+
+<script>
+(function(){
+"use strict";
+var I={
+ grid:'<path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/>',
+ users:'<circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6M17 4a4 4 0 0 1 0 8M22 21c0-3-2-5-4-5.6"/>',
+ film:'<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M10 9l5 3-5 3z"/>',
+ msg:'<path d="M4 5h16v11H9l-5 4z"/>',
+ video:'<rect x="3" y="6" width="13" height="12" rx="3"/><path d="M16 11l5-3v8l-5-3"/>',
+ flag:'<path d="M5 21V4M5 4h12l-2 4 2 4H5"/>',
+ menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',
+ sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"/>',
+ x:'<path d="M6 6l12 12M18 6L6 18"/>',
+ play:'<path d="M8 5l11 7-11 7z"/>',
+ arr:'<path d="M9 6l6 6-6 6"/>'
+};
+function ic(n,s){return '<svg width="'+(s||18)+'" height="'+(s||18)+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+I[n]+'</svg>'}
+function $(id){return document.getElementById(id)}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function fmt(n){return n.toLocaleString("en-US")}
+function pct(a,b){return b?Math.round(a/b*100)+"%":"0%"}
+
+/* ---------- data (previewed locally; wire each field to the source named beside it) ---------- */
+var STAGES=["in conversation","qualified","meeting held","applied","offer received","visa started","flight booked","arrived","enrolled","payout due"];
+var ALLST=["in conversation","qualified","meeting held","applied","offer received","visa started","visa hold","flight booked","arrived","enrolled","payout due","lost","dropped"];
+var STAGE_LABEL={"in conversation":"In conversation","qualified":"Qualified","meeting held":"Meeting held","applied":"Applied","offer received":"Offer received","visa started":"Visa process started","visa hold":"Visa on hold","flight booked":"Student booked flight","arrived":"Student arrived in Malaysia","enrolled":"Student enrolment done","payout due":"Payout due","lost":"Lost","dropped":"Dropped"};
+var CREATORS=[
+ {id:"c1",name:"Yeba",handle:"@yeba.official",color:"#F05A28"},
+ {id:"c2",name:"Daniel Lim",handle:"@dan.studies.uk",color:"#14B8A6"},
+ {id:"c3",name:"Sofia Karim",handle:"@sofia.unilife",color:"#9B6BFF"},
+ {id:"c4",name:"Omar Haddad",handle:"@omar.mba.path",color:"#F08A4B"}
+];
+var REELS=[
+ {id:"r1",c:"c1",t:"5 UK scholarships you can still apply for",views:48200,kw:214,st:"posted"},
+ {id:"r2",c:"c1",t:"What my visa interview was really like",views:31700,kw:131,st:"posted"},
+ {id:"r3",c:"c1",t:"Cost of living in Manchester, month by month",views:22900,kw:74,st:"archived"},
+ {id:"r10",c:"c1",t:"Scholarship deadlines you should not miss",views:0,kw:0,st:"scheduled",when:"28 Oct"},
+ {id:"r11",c:"c1",t:"Do I need an agent to apply? Honest answer",views:2400,kw:9,st:"trial"},
+ {id:"r12",c:"c1",t:"Old intake dates (outdated)",views:8100,kw:22,st:"removed"},
+ {id:"r4",c:"c2",t:"Rent a room in London without a guarantor",views:57400,kw:188,st:"posted"},
+ {id:"r5",c:"c2",t:"Russell Group offers: what they check first",views:26100,kw:97,st:"posted"},
+ {id:"r6",c:"c3",t:"Study in Canada with a low IELTS score",views:39800,kw:162,st:"posted"},
+ {id:"r7",c:"c3",t:"Part-time jobs for international students",views:18400,kw:58,st:"posted"},
+ {id:"r8",c:"c4",t:"MBA in Europe under 20k",views:29300,kw:109,st:"posted"},
+ {id:"r9",c:"c4",t:"SOP mistakes that get you rejected",views:14800,kw:41,st:"posted"}
+];
+var PFS=["Instagram","TikTok","Instagram","YouTube Shorts","TikTok","Instagram","TikTok","YouTube Shorts","Instagram"];
+REELS.forEach(function(r,i){r.pf=PFS[i%PFS.length]});
+var REASONS={lost:["Chose another consultant","Offer came from a different university","Visa refused","Budget did not fit"],dropped:["Stopped replying after the call","Budget too low","Timeline moved to next intake","Family decision pending"]};
+var HANDLES=["noor.k","tariq_92","hina.writes","zayn.m","maryam.a","bilal.x","sana.r","ali.studies","iqra.s","hamza.dev","laiba.t","faisal_n","amna.k","usman.r","zoya.m","rehan.q","alina.b","kamran.s","dua.a","saad.h","mehwish.t","ibrahim.o","farah.d","adeel.m","komal.r","shahid.k","rida.n","yusuf.l","anum.s","taha.j","mahnoor","rafay.k","eman.z","owais.t","sidra.h","junaid.b"];
+var COUNSELORS=[{id:"m1",name:"Maheen Qureshi",role:"Senior counselor",color:"#F05A28",photo:""},{id:"m2",name:"Hira Siddiqui",role:"Counselor",color:"#0D1F3D",photo:""}];
+var comap={};COUNSELORS.forEach(function(c){comap[c.id]=c});
+var MEET=[
+ {sum:"Wants a September intake. Budget is clear and the family is supportive.",pts:["Shortlist of three universities requested","Budget confirmed, no loan needed","Prefers a city with halal food and a small campus"],next:"Counselor sends the shortlist within two days.",tr:[["00:41","Counselor","Walk me through what you have studied so far."],["03:10","Student","I finish my degree in July and want to start in September."],["09:25","Counselor","I will send you three options with fees and scholarships."]]},
+ {sum:"Compared two courses and needs a scholarship to go ahead.",pts:["Torn between two courses at different universities","Scholarship decides the final pick","Documents partly ready"],next:"Funding options shared this week, call again on Friday.",tr:[["00:30","Counselor","Which of the two courses excites you more?"],["05:02","Student","The first, but only if I get a scholarship."],["12:48","Counselor","Let me check which ones you qualify for."]]},
+ {sum:"Strong profile. Waiting on the IELTS result before applying.",pts:["Documents mostly ready","IELTS result due next week","Interested in two Malaysian universities"],next:"Apply as soon as the IELTS result arrives.",tr:[["00:55","Counselor","Do you have your transcripts and passport ready?"],["04:40","Student","Transcripts yes, IELTS result comes next week."],["10:15","Counselor","Great, we apply right after that."]]},
+ {sum:"Asked about accommodation first. Needs a guarantor-free option.",pts:["Accommodation is the main worry","No guarantor available","Rentals team looped in"],next:"Rentals team sends three room options.",tr:[["00:22","Student","Can I rent without a guarantor?"],["02:50","Counselor","Yes, I will connect you with our rentals team."],["08:05","Student","Please send options near the campus."]]}
+];
+MEET.push({sum:"Clear goals and a realistic plan. Wants a business degree and has a strong referee.",pts:["Business or management degree","Referee letter ready","Open to two intakes"],next:"Counselor shares course options and fees by Thursday.",tr:[["00:35","Counselor","What would you like to study and why?"],["04:20","Student","Business, I want to join my family company."],["10:05","Counselor","I will send fees and intake dates."]]});
+MEET.push({sum:"Interested but worried about the cost. Needs a clear fee breakdown before deciding.",pts:["Tuition is the main concern","Asked about part-time work rules","Wants to compare two universities"],next:"Send a full cost breakdown and scholarship options.",tr:[["00:48","Student","Is the fee per year or per semester?"],["03:30","Counselor","Per year, and I will send the breakdown."],["09:50","Student","Thank you, I will discuss it at home."]]});
+MEET.push({sum:"Not ready yet. Still finishing exams and has not chosen a course.",pts:["Exams end in December","No course shortlisted","Parents want to join the next call"],next:"Follow up in three weeks after exams.",tr:[["00:30","Counselor","Where are you in your studies right now?"],["03:15","Student","Still finishing exams, results in December."],["07:40","Counselor","Let us speak again after that."]]});
+MEET[0].qual="yes";MEET[1].qual="maybe";MEET[2].qual="yes";MEET[3].qual="yes";MEET[4].qual="yes";MEET[5].qual="maybe";MEET[6].qual="maybe";
+var FROM=["Lahore, Pakistan","Karachi, Pakistan","Islamabad, Pakistan","Dhaka, Bangladesh","Lagos, Nigeria","Nairobi, Kenya","Cairo, Egypt","Colombo, Sri Lanka","Kathmandu, Nepal","Dubai, UAE"];
+var ACAD_UG=[{now:"A-Levels, final year",grade:"Predicted AAB",eng:"IELTS 6.0"},{now:"High school, final year",grade:"84%",eng:"IELTS 5.5"},{now:"FSc Pre-Engineering",grade:"78%",eng:"Not taken yet"},{now:"Foundation year",grade:"CGPA 3.2",eng:"IELTS 6.5"}];
+var ACAD_PG=[{now:"BSc Computer Science, graduating",grade:"CGPA 3.4",eng:"IELTS 6.5"},{now:"BBA, 2 years work experience",grade:"CGPA 3.0",eng:"IELTS 6.0"},{now:"BEng Electrical, graduated",grade:"Second class upper",eng:"Not taken yet"}];
+var FIRSTS=["Noor","Tariq","Hina","Zayn","Maryam","Bilal","Sana","Ali","Iqra","Hamza","Laiba","Faisal","Amna","Usman","Zoya","Rehan","Alina","Kamran","Dua","Saad","Mehwish","Ibrahim","Farah","Adeel","Komal","Shahid","Rida","Yusuf","Anum","Taha","Mahnoor","Rafay","Eman","Owais","Sidra","Junaid"];
+var FLAGS={"Pakistan":"\uD83C\uDDF5\uD83C\uDDF0","Bangladesh":"\uD83C\uDDE7\uD83C\uDDE9","Nigeria":"\uD83C\uDDF3\uD83C\uDDEC","Kenya":"\uD83C\uDDF0\uD83C\uDDEA","Egypt":"\uD83C\uDDEA\uD83C\uDDEC","Sri Lanka":"\uD83C\uDDF1\uD83C\uDDF0","Nepal":"\uD83C\uDDF3\uD83C\uDDF5","UAE":"\uD83C\uDDE6\uD83C\uDDEA"};
+var RST={posted:["Posted","#22C55E"],archived:["Archived","#111111"],scheduled:["Scheduled","#9CA3AF"],trial:["Trial reel","#FACC15"],removed:["Removed","#EF4444"]};
+function rpill(st,img){var d=RST[st];return '<span class="rpill'+(img?' on-img':'')+'" style="--c:'+d[1]+'">'+d[0]+'<i></i></span>'}
+function reelUrl(r){if(r.url)return r.url;var h=cmap[r.c].handle.slice(1);return r.pf==="TikTok"?"https://www.tiktok.com/@"+h:r.pf==="YouTube Shorts"?"https://www.youtube.com/@"+h+"/shorts":"https://www.instagram.com/"+h+"/reels/"}
+function reelLive(r){return r.st==="posted"||r.st==="trial"||r.st==="archived"}
+function loc(l){var s=typeof l.from==="string"?l.from:"Dhaka, Bangladesh";var p=s.includes(", ")?s.split(", "):[s,s];return '<span class="loc"><span class="flag">'+(FLAGS[p[1]]||"")+'</span>'+esc(p[0])+'<span class="faint">, '+esc(p[1])+'</span></span>'}
+var seed=7;function rnd(){seed=(seed*16807)%2147483647;return (seed-1)/2147483646}
+var PSEUDO=[{id:"dm",c:"c1",t:"Direct message",views:0,kw:0,st:"none",src:"dm",n:22},{id:"personal",c:"c1",t:"Personal contact",views:0,kw:0,st:"none",src:"personal",n:9}];
+var LEADS=[];var now=new Date("2026-10-23");
+REELS.concat(PSEUDO).forEach(function(r){
+ var n=r.n||(r.kw?Math.max(6,Math.round(r.kw*0.19)):0);
+ for(var i=0;i<n;i++){
+  var d=new Date(now.getTime()-Math.floor(rnd()*90)*864e5);
+  var x=rnd(),stage=x<.30?0:x<.54?1:x<.68?2:x<.78?3:x<.84?4:x<.88?5:x<.91?6:x<.94?7:x<.975?8:9;
+  var end=null;if(stage<7){var y=rnd();end=y<.10?"lost":y<.24&&stage>=1?"dropped":null}
+  var h=HANDLES[LEADS.length%HANDLES.length];
+  var l={id:"L"+(1000+LEADS.length),first:FIRSTS[LEADS.length%FIRSTS.length],handle:h+(LEADS.length>=HANDLES.length?"."+(LEADS.length%9):""),c:r.c,reel:r.id,date:d,stage:stage,end:end,
+   email:rnd()<.58,intent:rnd()<.8?"Admissions":"Rentals",msgs:2+Math.floor(rnd()*7),
+   sent:rnd()<.72?"positive":rnd()<.55?"neutral":"negative"};
+  l.level=l.intent==="Admissions"?(rnd()<.55?"Undergraduate":"Postgraduate"):"";
+  l.from=FROM[Math.floor(rnd()*FROM.length)];
+  l.budget=l.intent==="Rentals"?"RM "+(500+Math.floor(rnd()*8)*100)+" per month":"RM "+(18+Math.floor(rnd()*8)*4)+",000 per year";
+  l.acad=l.level==="Postgraduate"?ACAD_PG[Math.floor(rnd()*ACAD_PG.length)]:ACAD_UG[Math.floor(rnd()*ACAD_UG.length)];
+  if(l.sent==="negative"&&stage>1)l.sent="neutral";
+  l.docs=stage>=3||(stage===2&&l.msgs%2===0);
+  l.hold=!end&&stage===5&&l.msgs%2===0;l.egms=[35,35,35,62,80][l.msgs%5];
+  l.status=end||(l.hold?"visa hold":STAGES[stage]);
+  if(end)l.reason=REASONS[end][Math.floor(rnd()*REASONS[end].length)];
+  if(stage>=2){l.rec=18+Math.floor(rnd()*30);l.meet=(function(){var mi=Math.floor(rnd()*MEET.length);return l.intent==="Rentals"?MEET[3]:(mi===3?MEET[4]:MEET[mi])})();l.co=rnd()<.85?"m1":"m2";l.mdate=new Date(Math.min(now.getTime(),d.getTime()+(2+Math.floor(rnd()*6))*864e5))}
+  LEADS.push(l)}
+});
+var cmap={};CREATORS.forEach(function(c){cmap[c.id]=c});
+var rmap={};REELS.concat(PSEUDO).forEach(function(r){rmap[r.id]=r});
+
+/* ---------- state ---------- */
+var S={pform:"all",srcf:"all",callView:(window.matchMedia&&matchMedia("(max-width:760px)").matches)?"cards":"list",cq:"all",leadView:"list",rng:30,metric:"views",from:"",to:"",dl:"",dtab:"profile",dch:"All",lf:"all",reelView:"grid",view:"overview",role:"creator",creator:"c1",stage:"all",q:""};
+function scope(){return S.role==="mgmt"?LEADS:LEADS.filter(function(l){return l.c===S.creator})}
+function scopeReels(){return S.role==="mgmt"?REELS:REELS.filter(function(r){return r.c===S.creator})}
+function stats(L,R){
+ var q=L.filter(function(l){return l.stage>=1}).length;
+ return {leads:L.length,kw:R.reduce(function(a,r){return a+r.kw},0),emails:L.filter(function(l){return l.email}).length,views:R.reduce(function(a,r){return a+r.views},0),
+  msgs:L.reduce(function(a,l){return a+l.msgs},0),pos:L.filter(function(l){return l.sent==="positive"}).length,neg:L.filter(function(l){return l.sent==="negative"}).length,
+  adm:L.filter(function(l){return l.intent==="Admissions"}).length,wa:q,qual:q,meet:L.filter(function(l){return l.stage>=2}).length,
+  won:L.filter(isWon).length,lost:L.filter(function(l){return l.status==="lost"}).length,drop:L.filter(function(l){return l.status==="dropped"}).length}}
+function av(c,s){return '<span class="av" style="background:'+c.color+';'+(s?'width:'+s+'px;height:'+s+'px':'')+'">'+c.name.split(" ").map(function(w){return w[0]}).join("")+'</span>'}
+
+/* ---------- chrome ---------- */
+var NAV=[["overview","Home","grid"],["outcomes","My leads","users"],["messages","Conversations","msg"],["calls","Calls","video"],["reels","My reels","film"]];
+function side(){
+ var L=scope();
+ $("side").innerHTML='<div class="brand"><span class="mark">'+ic("users",20)+'</span><div><b>Easy<span style="color:var(--accent)">i</span>ntake</b><small>Creator portal</small></div></div>'+
+ '<div class="grp">Workspace</div>'+NAV.map(function(n){var c=n[0]==="leads"?'<span class="cnt">'+L.length+'</span>':'';
+  return '<button class="nav'+(S.view===n[0]?' on':'')+'" data-v="'+n[0]+'">'+ic(n[2])+'<span>'+n[1]+'</span>'+c+'</button>'}).join("")+
+ '<div class="foot">'+av(cmap[S.creator])+'<div><b>'+esc(cmap[S.creator].name)+'</b></div>'+'</div>';
+}
+function top(){
+ var c=cmap[S.creator];
+ $("top").innerHTML='<button class="btn sm menu" id="mn" aria-label="Menu">'+ic("menu")+'</button><div class="cell">'+av(c,30)+'<div><b>'+esc(c.name)+'</b><span style="color:var(--accent)">'+esc(c.handle)+'</span></div></div><div class="grow"></div><button class="btn pri sm" id="cbtn">'+ic("msg",16)+'<span class="lblw">Speak with our team</span><span class="lbln">Team</span></button><button class="btn sm" id="th" aria-label="Toggle theme">'+ic("sun")+'</button>';
+}
+function head(t,p,extra){return '<div class="ph"><div class="t"><h1>'+t+'</h1><p>'+p+'</p></div>'+(extra||'')+'</div>'}
+function kpi(l,v,d,modal,hint){
+ if(modal==="comm"||modal==="lost")return '<div class="card kpi clk" data-modal="'+modal+'" role="button" tabindex="0"><span class="l">'+l+'</span><span class="v num">'+v+'</span><span class="d">'+d+'</span><span class="khint">'+hint+' '+ic("arr",14)+'</span></div>';
+ return '<div class="card kpi"><span class="l">'+l+'</span><span class="v num">'+v+'</span><span class="d">'+d+'</span></div>'}
+
+/* ---------- charts ---------- */
+function weekly(L){
+ var W=8,b=[];for(var i=0;i<W;i++)b.push(0);
+ L.forEach(function(l){var w=Math.floor((now-l.date)/(7*864e5));if(w<W)b[W-1-w]++});
+ var max=Math.max.apply(null,b.concat([4])),w=560,h=300,px=28,py=20,
+ pts=b.map(function(v,i){return [px+i*(w-px*2)/(W-1),h-py-(v/max)*(h-py*2)]});
+ var path=pts.map(function(p,i){return (i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)}).join(" ");
+ var grid=[0,.5,1].map(function(t){var y=h-py-t*(h-py*2);return '<line x1="'+px+'" x2="'+(w-px)+'" y1="'+y+'" y2="'+y+'" stroke="var(--line)"/><text x="4" y="'+(y+4)+'" fill="var(--faint)" font-size="11">'+Math.round(max*t)+'</text>'}).join("");
+ var lab=b.map(function(v,i){var d=new Date(now-(W-1-i)*7*864e5);return '<text x="'+pts[i][0]+'" y="'+(h-2)+'" text-anchor="middle" fill="var(--faint)" font-size="11">'+(d.getDate()+" "+d.toLocaleString("en",{month:"short"}))+'</text>'}).join("");
+ var last=pts[W-1];
+ return '<svg viewBox="0 0 '+w+' '+h+'" width="100%" role="img" aria-label="New leads per week, last 8 weeks">'+grid+'<defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--accent)" stop-opacity=".38"/><stop offset="1" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs>'+
+ '<path d="'+path+' L'+pts[W-1][0]+' '+(h-py)+' L'+pts[0][0]+' '+(h-py)+'Z" fill="url(#ag)"/><path d="'+path+'" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"/>'+
+ '<circle cx="'+last[0]+'" cy="'+last[1]+'" r="5" fill="var(--accent2)" stroke="var(--solid)" stroke-width="2"/><text x="'+(last[0]-8)+'" y="'+(last[1]-10)+'" text-anchor="end" fill="var(--fg)" font-size="12" font-weight="600">'+b[W-1]+'</text>'+lab+'</svg>'
+}
+function funnel(L){
+ var total=L.length||1;
+ return '<div class="funnel">'+STAGES.map(function(s,i){var n=L.filter(function(l){return l.stage>=i}).length;
+  return '<div class="frow"><span>'+STAGE_LABEL[s]+'</span><div class="bar"><i style="width:'+(n/total*100)+'%"></i></div><span class="num">'+n+' <small>'+pct(n,total)+'</small></span></div>'}).join("")+'</div>'
+}
+
+/* ---------- views ---------- */
+var THM=[["#F05A28","#FFB27A"],["#0D1F3D","#F05A28"],["#C2410C","#FFD2B8"],["#12254A","#EF7B45"],["#F05A28","#0D1F3D"]];
+function rthumb(r,w){if(r.src)return '<span class="mthumb srcicon" style="width:'+w+'px;height:'+Math.round(w*1.3)+'px">'+ic(r.src==="dm"?"msg":"users",Math.max(12,Math.round(w/2)))+'</span>';var t=THM[Math.max(0,REELS.indexOf(r))%THM.length];return '<span class="mthumb" style="width:'+w+'px;height:'+Math.round(w*1.3)+'px;background:linear-gradient(160deg,'+t[0]+','+t[1]+')">'+ic("play",Math.max(10,Math.round(w/3)))+'</span>'}
+function pfTag(p){return '<span class="pf"><i style="background:'+CH[p]+'"></i>'+p+'</span>'}
+function sl(st){return STAGE_LABEL[st]}
+function feed(L){
+ return L.slice().sort(function(a,b){return b.date-a.date}).slice(0,6).map(function(l){
+  var FT={"in conversation":"started a conversation","qualified":"shared a WhatsApp number, group created","applied":"applied","offer received":"received an offer","visa started":"started the visa process","visa hold":"visa is on hold, waiting for data sync","flight booked":"booked a flight","arrived":"arrived in Malaysia","enrolled":"completed enrolment","payout due":"enrolled, payout due","lost":"did not continue","dropped":"paused"};var t=l.status==="meeting held"?"had a call with "+comap[l.co].name.split(" ")[0]:FT[l.status];
+  var dd=Math.floor((now-l.date)/864e5);
+  return '<div class="li" data-l="'+l.id+'" tabindex="0"><span class="dot '+(isWon(l)?"good":l.status==="visa hold"?"warn":"acc")+'"></span><div class="tx"><b>'+esc(l.first)+'</b> '+t+'<span>From "'+esc(rmap[l.reel].t)+'"</span></div><span class="faint">'+(dd===0?"Today":dd+" d ago")+'</span></div>'}).join("")}
+/* ---------- content performance chart ---------- */
+var SER=[],TP=[],TG={};
+function ymd(d){return d.toISOString().slice(0,10)}
+function leadPf(l){var r=rmap[l.reel];if(r.src==='personal')return 'Other';if(r.src==='dm')return pfOf(l);return r.pf||'Instagram'}
+var PLATS=['Instagram','TikTok','YouTube Shorts'];
+function buildSeries(L){
+ var arr=[];
+ for(var i=199;i>=0;i--){var d=new Date(now.getTime()-i*864e5),w=d.getUTCDay();
+  var fr=Math.abs(Math.sin(i*12.9898)*43758.5453)%1;
+  var base=Math.round(1700+700*Math.sin(i/9)+((w===0||w===6)?420:0)+fr*900),w1=.5+.1*Math.sin(i/5),w2=.35+.1*Math.sin(i/3+1),w3=.15+.05*Math.sin(i/4+2),ws=w1+w2+w3;
+  var a1=Math.round(base*w1/ws),a2=Math.round(base*w2/ws);
+  arr.push({d:d,k:ymd(d),views:base,leads:0,vp:{"Instagram":a1,"TikTok":a2,"YouTube Shorts":base-a1-a2},lp:{"Instagram":0,"TikTok":0,"YouTube Shorts":0}})}
+ var idx={};arr.forEach(function(p,i){idx[p.k]=i});
+ L.forEach(function(l){var k=ymd(l.date);if(idx[k]!==undefined){arr[idx[k]].leads++;var pf=leadPf(l);if(pf!=="Other")arr[idx[k]].lp[pf]++}});
+ return arr}
+function trendPointsRaw(){
+ if(S.rng==="custom"&&S.from&&S.to){var a=S.from<=S.to?S.from:S.to,b=S.from<=S.to?S.to:S.from;return SER.filter(function(p){return p.k>=a&&p.k<=b})}
+ return SER.slice(-(+S.rng||30))}
+function trendPoints(){
+ var raw=trendPointsRaw();
+ if(S.pform==="all")return raw;
+ return raw.map(function(p){return {d:p.d,k:p.k,views:p.vp[S.pform],leads:p.lp[S.pform],vp:p.vp,lp:p.lp}})}
+function niceMax(v){var p=Math.pow(10,Math.floor(Math.log(v||1)/Math.LN10)),n=v/p;return (n<=1?1:n<=2?2:n<=5?5:10)*p}
+function trendInner(){
+ var pts=trendPoints(),key=S.metric;TP=pts;
+ var W=620,H=260,pl=46,pr=14,pt=14,pb=30,n=Math.max(pts.length,1);
+ var vals=pts.map(function(p){return p[key]}),tot=vals.reduce(function(a,b){return a+b},0),mx=niceMax(Math.max.apply(null,vals.concat([1])));if(mx<20)mx=Math.ceil(Math.max.apply(null,vals.concat([1]))/4)*4;
+ var xs=function(i){return n>1?pl+i*(W-pl-pr)/(n-1):pl+(W-pl-pr)/2},ys=function(v){return H-pb-(v/mx)*(H-pt-pb)};
+ TG={W:W,pl:pl,pr:pr,n:n,xs:xs,ys:ys};
+ var path=pts.map(function(p,i){return (i?"L":"M")+xs(i).toFixed(1)+" "+ys(p[key]).toFixed(1)}).join(" ");
+ var grid=[0,.25,.5,.75,1].map(function(t){var y=ys(mx*t),v=mx*t;return '<line x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y+'" y2="'+y+'" stroke="var(--line)"/><text x="'+(pl-8)+'" y="'+(y+4)+'" text-anchor="end" fill="var(--faint)" font-size="11">'+(v>=1000?(Math.round(v/100)/10)+"k":Math.round(v*10)/10)+'</text>'}).join("");
+ var step=Math.max(1,Math.round(n/6)),lab=pts.map(function(p,i){return i%step===0?'<text x="'+xs(i)+'" y="'+(H-8)+'" text-anchor="middle" fill="var(--faint)" font-size="11">'+p.d.getUTCDate()+" "+p.d.toLocaleString("en",{month:"short",timeZone:"UTC"})+'</text>':""}).join("");
+ var unit=key==="views"?"views":"leads";
+ var rb=[[7,"7 days"],[30,"30 days"],[60,"60 days"],[90,"90 days"],["custom","Custom"]].map(function(r){return '<button data-rng="'+r[0]+'" class="'+(String(S.rng)===String(r[0])?"on":"")+'">'+r[1]+'</button>'}).join("");
+ var dates=S.rng==="custom"?'<div class="dates"><input class="sel" type="date" id="dfrom" value="'+S.from+'" min="'+SER[0].k+'" max="'+SER[SER.length-1].k+'" aria-label="From date"><span class="faint">to</span><input class="sel" type="date" id="dto" value="'+S.to+'" min="'+SER[0].k+'" max="'+SER[SER.length-1].k+'" aria-label="To date"></div>':"";
+ return '<div class="ch"><h3>Your content performance</h3><div class="seg" role="group" aria-label="Metric"><button data-met="views" class="'+(key==="views"?"on":"")+'">Views</button><button data-met="leads" class="'+(key==="leads"?"on":"")+'">Leads</button></div></div>'+
+ '<div class="rngrow"><div class="seg" role="group" aria-label="Date range">'+rb+'</div>'+dates+'</div>'+
+ '<div class="chips2 pfrow" role="group" aria-label="Platform">'+[["all","All platforms"]].concat(PLATS.map(function(p){return [p,p]})).map(function(x){return '<button class="chipb'+(S.pform===x[0]?' on':'')+'" data-pf="'+x[0]+'">'+(x[0]==="all"?"":'<i class="pdot" style="background:'+CH[x[0]]+'"></i>')+x[1]+'</button>'}).join("")+'</div>'+
+ '<div class="tsum"><b class="num">'+fmt(tot)+'</b><span>'+unit+' in this period</span><span class="faint">'+fmt(Math.round(tot/n))+' a day on average</span></div>'+
+ '<div class="cwrap" id="cw"><svg viewBox="0 0 '+W+' '+H+'" width="100%" role="img" aria-label="'+unit+' per day"><defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--accent)" stop-opacity=".35"/><stop offset="1" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs>'+grid+lab+
+ (pts.length?'<path d="'+path+' L'+xs(n-1)+' '+(H-pb)+' L'+xs(0)+' '+(H-pb)+'Z" fill="url(#tg)"/><path d="'+path+'" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"/>':'')+
+ '<line id="cl" y1="'+pt+'" y2="'+(H-pb)+'" stroke="var(--accent2)" stroke-dasharray="3 4" visibility="hidden"/><circle id="cd" r="5" fill="var(--accent2)" stroke="var(--solid)" stroke-width="2" visibility="hidden"/></svg><div class="ctip" id="ctip" hidden></div></div>'
+}
+function refreshTrend(){var t=$("trend");if(t){t.innerHTML=trendInner();bindTrend()}}
+function bindTrend(){
+ var w=$("cw");if(!w)return;
+ function move(e){var r=w.getBoundingClientRect(),cx=e.touches?e.touches[0].clientX:e.clientX,x=(cx-r.left)/r.width*TG.W,i=TG.n>1?Math.round((x-TG.pl)/(TG.W-TG.pl-TG.pr)*(TG.n-1)):0;
+  i=Math.max(0,Math.min(TG.n-1,i));var p=TP[i];if(!p)return;
+  var X=TG.xs(i),Y=TG.ys(p[S.metric]),l=$("cl"),d=$("cd"),tip=$("ctip");
+  l.setAttribute("x1",X);l.setAttribute("x2",X);l.setAttribute("visibility","visible");d.setAttribute("cx",X);d.setAttribute("cy",Y);d.setAttribute("visibility","visible");
+  tip.hidden=false;tip.innerHTML='<b>'+p.d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric",timeZone:"UTC"})+'</b><span>'+fmt(p.views)+' views</span><span>'+p.leads+' leads</span>'+(S.pform==="all"?PLATS.map(function(n){return '<span class="tp"><i style="background:'+CH[n]+'"></i>'+n+' '+fmt(S.metric==="views"?p.vp[n]:p.lp[n])+'</span>'}).join(""):'');
+  tip.style.left=Math.max(80,Math.min(r.width-80,X/TG.W*r.width))+"px"}
+ function out(){var l=$("cl"),d=$("cd"),tip=$("ctip");if(l)l.setAttribute("visibility","hidden");if(d)d.setAttribute("visibility","hidden");if(tip)tip.hidden=true}
+ w.addEventListener("pointermove",move);w.addEventListener("pointerdown",move);w.addEventListener("pointerleave",out)}
+function srcCard(L){
+ var v=L.filter(function(l){return !rmap[l.reel].src}).length,d=L.filter(function(l){return l.reel==="dm"}).length,p=L.filter(function(l){return l.reel==="personal"}).length,t=L.length||1;
+ var rows=[["Videos",v,"var(--accent)","Leads we can trace to a video"],["Direct messages",d,"var(--accent2)","No video detected, they messaged you directly"],["Personal contacts",p,"var(--fg)","Came through you personally"]];
+ return '<div class="card pad"><div class="ch"><h3>Where your leads come from</h3></div><div class="sbar">'+rows.map(function(r){return '<i style="width:'+(r[1]/t*100)+'%;background:'+r[2]+'" title="'+r[0]+'"></i>'}).join("")+'</div><div class="slegend">'+rows.map(function(r){return '<div class="sitem"><span class="sdot" style="background:'+r[2]+'"></span><div><b class="num">'+r[1]+'</b> <span>'+r[0]+'</span> <span class="faint">'+pct(r[1],t)+'</span><div class="faint" style="font-size:12.5px">'+r[3]+'</div></div></div>'}).join("")+'</div></div>'}
+function vOverview(){
+ var L=scope(),R=scopeReels(),s=stats(L,R),c=cmap[S.creator];
+ if(!SER.length)SER=buildSeries(L);
+ var tops=R.filter(reelLive).map(function(r){return {r:r,n:L.filter(function(l){return l.reel===r.id}).length}}).sort(function(a,b){return b.n-a.n}).slice(0,4);
+ var mx=Math.max.apply(null,tops.map(function(x){return x.n}).concat([1]));
+ var jt=L.length||1,journey=ALLST.slice(0,11).map(function(st,ix){var it=L.filter(function(l){return l.status===st}),n=it.length,nm=it.slice(0,3).map(function(l){return l.first}).join(", ");return '<button class="jn'+(st==="enrolled"||st==="payout due"?" fin":"")+(st==="visa hold"?" hold":"")+'" data-more="'+st+'"><span class="jc num">'+n+'</span><span class="jl">'+sl(st)+'</span><span class="jpop" role="tooltip"><b>'+n+' students</b><span>'+pct(n,jt)+' of your leads</span>'+(nm?'<span class="jeg">e.g. '+esc(nm)+'</span>':'')+'<span class="jgo">Open in my leads</span></span></button>'}).join("");
+ return head("Hi "+esc(c.name.split(" ")[0]),"Here is what your content has produced and where each student is right now.")+
+ '<div class="grid g4">'+kpi("Your leads",fmt(s.leads),"From videos, direct messages and personal contacts")+
+ kpi("Qualified",fmt(s.qual),pct(s.qual,s.leads)+" shared a WhatsApp number. "+(s.leads-s.qual)+" not qualified yet")+
+ kpi("Calls held",fmt(s.meet),"With a counselor")+
+ kpi("Enrolled",fmt(s.won),"Tap to see your commission","comm","View commission")+'</div>'+
+ '<div class="card pad"><div class="ch"><h3>Where your students are</h3><span class="pill warn">'+(s.leads-s.qual)+' not qualified yet</span><button class="btn sm" data-v="outcomes">Open my leads</button></div><div class="jtl">'+journey+'</div></div>'+
+ srcCard(L)+'<div class="grid g21"><div class="card pad" id="trend">'+trendInner()+'</div>'+
+ '<div class="card pad" style="display:flex;flex-direction:column"><div class="ch"><h3>Top posts</h3></div><div class="thead"><span>Post</span><span class="tplat">Platform</span><span>Leads from post</span></div><div class="tlist">'+
+ tops.map(function(x,i){var t=THM[i%THM.length];return '<div class="trow"><a class="tthumb" href="'+reelUrl(x.r)+'" target="_blank" rel="noopener noreferrer" aria-label="Open the post" style="background:linear-gradient(160deg,'+t[0]+','+t[1]+')">'+ic("play",16)+'</a><div class="tmain"><b>'+esc(x.r.t)+'</b><span class="faint">'+fmt(x.r.views)+' views</span><span class="pfm">'+pfTag(x.r.pf)+'</span><div class="bar"><i style="width:'+(x.n/mx*100)+'%"></i></div></div><div class="tplat">'+pfTag(x.r.pf)+'</div><div class="tnum"><b class="num">'+x.n+'</b><span>leads</span></div></div>'}).join("")+'</div><div style="margin-top:auto;padding-top:14px"><button class="btn sm" data-v="reels">See all posts</button></div></div></div>'+
+ '<div class="card pad"><div class="ch"><h3>What is going on</h3></div><div class="list">'+feed(L)+'</div></div>'
+}
+function callInfo(l){
+ var n=parseInt(l.id.slice(1),10),h=(l.msgs*7+l.stage*3+n)%100,qual=l.end?"no":(l.meet.qual||"yes");
+ var sc=qual==="no"?3.5+(h%25)/10:qual==="yes"?7.5+(h%24)/10:5.5+(h%19)/10;sc=Math.round(sc*10)/10;
+ var out=sc>=8.5?["Great","good"]:sc>=7?["Good","acc"]:sc>=5.5?["Mixed","warn"]:["Tough","bad"];
+ var q=qual==="no"?["Not qualified","bad"]:qual==="yes"?["Qualified","good"]:["Needs follow-up","warn"];
+ return {sc:sc,out:out[0],oc:out[1],q:q[0],qc:q[1],next:l.meet.next}}
+function ring(sc){return '<span class="ring" style="--p:'+(sc*10)+'" aria-label="Score '+sc.toFixed(1)+' out of 10"><b class="num">'+sc.toFixed(1)+'</b></span>'}
+function vCalls(){
+ var all=scope().filter(function(l){return l.meet}).sort(function(a,b){return b.mdate-a.mdate});
+ var info={};all.forEach(function(l){info[l.id]=callInfo(l)});
+ var cnt=function(k){return k==="all"?all.length:all.filter(function(l){return info[l.id].q===k}).length};
+ var L=all.filter(function(l){return S.cq==="all"||info[l.id].q===S.cq});
+ var avg=all.length?all.reduce(function(a,l){return a+info[l.id].sc},0)/all.length:0,avgLen=all.length?Math.round(all.reduce(function(a,l){return a+l.rec},0)/all.length):0,qn=cnt("Qualified");
+ var tog='<div class="seg" role="group" aria-label="Layout"><button data-cv="list" class="'+(S.callView==="list"?'on':'')+'">'+ic("menu",15)+' List</button><button data-cv="cards" class="'+(S.callView==="cards"?'on':'')+'">'+ic("grid",15)+' Cards</button></div>';
+ var filt=[["all","All"],["Qualified","Qualified"],["Needs follow-up","Needs follow-up"],["Not qualified","Not qualified"]];
+ var body;
+ if(!L.length)body='<div class="empty">No calls match this filter.</div>';
+ else if(S.callView==="cards")body='<div class="grid g2">'+L.map(function(l){var i=info[l.id],co=comap[l.co];
+  return '<div class="card pad callcard" data-lc="'+l.id+'" tabindex="0"><div class="cc-top"><div style="min-width:0;flex:1"><b style="font:600 19px var(--f-display)">'+esc(l.first)+'</b><div style="margin-top:2px">'+loc(l)+'</div></div><div class="cc-score">'+ring(i.sc)+'<span class="faint">Score</span></div></div>'+
+  '<div class="cc-pills"><span class="pill '+i.oc+'">'+i.out+' call</span><span class="pill '+i.qc+'">'+i.q+'</span></div>'+
+  '<div class="cell" style="margin:12px 0">'+coAv(co,34)+'<div><b style="font-size:13.5px">'+esc(co.name)+'</b><span>'+dts(l.mdate)+' · '+l.rec+' min</span></div></div>'+
+  '<p class="muted" style="margin:0 0 12px">'+esc(l.meet.sum)+'</p><div class="cc-next"><span class="faint">Next steps</span><div>'+esc(i.next)+'</div></div></div>'}).join("")+'</div>';
+ else body='<div class="card"><div class="scroll"><div class="lrows callist"><div class="lrow lhead cl"><span>Student</span><span>Call</span><span>Counselor</span><span>Score</span><span>How was the call</span><span>Qualified</span><span>Summary</span><span>Next steps</span></div>'+
+  L.map(function(l){var i=info[l.id],co=comap[l.co];return '<div class="lrow cl click" data-lc="'+l.id+'" tabindex="0"><div class="lc-name"><b>'+esc(l.first)+'</b><span>'+loc(l)+'</span></div><div class="lc-name"><b class="num">'+dts(l.mdate)+'</b><span>'+l.rec+' min</span></div><div class="cell">'+coAv(co,26)+'<span style="color:var(--fg);font-size:13px">'+esc(co.name.split(" ")[0])+'</span></div><div class="cl-score">'+ring(i.sc)+'</div><div><span class="pill '+i.oc+'">'+i.out+'</span></div><div><span class="pill '+i.qc+'">'+i.q+'</span></div><div class="cl-text">'+esc(l.meet.sum)+'</div><div class="cl-text">'+esc(i.next)+'</div></div>'}).join("")+'</div></div></div>';
+ return head("Calls","How every counselor call went, whether the student qualified, and what happens next.",tog)+
+ '<div class="grid g4">'+kpi("Calls held",fmt(all.length),"With your students")+kpi("Average score",avg.toFixed(1)+" / 10","Across all calls")+kpi("Qualified",fmt(qn),pct(qn,all.length)+" of calls")+kpi("Average length",avgLen+" min","Per call")+'</div>'+
+ '<div class="seg segscroll" role="group" aria-label="Qualification">'+filt.map(function(f){return '<button data-cq="'+f[0]+'" class="'+(S.cq===f[0]?'on':'')+'">'+f[1]+' <span class="faint">'+cnt(f[0])+'</span></button>'}).join("")+'</div>'+body
+}
+function vReels(){
+ var L=scope(),R=scopeReels();
+ var rows=R.map(function(r){var ls=L.filter(function(l){return l.reel===r.id}),em=ls.filter(function(l){return l.email}).length;return {r:r,n:ls.length,em:em,rate:ls.length/r.views*1000}}).sort(function(a,b){return b.n-a.n});
+ var maxn=Math.max.apply(null,rows.map(function(x){return x.n}).concat([1]));
+ var tog='<div class="seg" role="group" aria-label="Reel layout"><button data-rv="grid" class="'+(S.reelView==="grid"?'on':'')+'">'+ic("grid",15)+' Thumbnails</button><button data-rv="list" class="'+(S.reelView==="list"?'on':'')+'">'+ic("menu",15)+' List</button></div>';
+ var hd=head("My reels","How many leads each of your videos brought in, with views beside them so videos compare fairly.",tog);
+ if(S.reelView==="grid"){
+  var TH=[["#F05A28","#FFB27A"],["#0D1F3D","#F05A28"],["#C2410C","#FFD2B8"],["#12254A","#EF7B45"],["#F05A28","#0D1F3D"]];
+  return hd+'<div class="rgrid">'+rows.map(function(x,i){var t=TH[i%TH.length];return '<div class="card rcard"><'+(reelLive(x.r)?'a href="'+reelUrl(x.r)+'" target="_blank" rel="noopener noreferrer" aria-label="Open on Instagram: '+esc(x.r.t)+'"':'div')+' class="rthumb" style="background:linear-gradient(160deg,'+t[0]+','+t[1]+')"><span class="rplay">'+ic("play",22)+'</span><span class="rviews">'+(x.r.st==="scheduled"?'Goes live '+x.r.when:fmt(x.r.views)+' views')+'</span>'+rpill(x.r.st,true)+'<b class="rtitle">'+esc(x.r.t)+'</b></'+(reelLive(x.r)?'a':'div')+'><div class="rstats"><div><b class="num">'+x.n+'</b><span>Leads</span></div><div><b class="num">'+x.r.kw+'</b><span>Comments</span></div><div><b class="num">'+x.em+'</b><span>Emails</span></div></div><div class="bar"><i style="width:'+(x.n/maxn*100)+'%"></i></div><span class="faint" style="font-size:12.5px">'+x.n+' leads from this video</span><span style="font-size:12.5px">'+pfTag(x.r.pf)+'</span></div>'}).join("")+'</div>'
+ }
+ return hd+
+ '<div class="card"><div class="scroll"><table class="tbl"><thead><tr><th>Reel</th><th>Platform</th><th>Status</th><th class="r">Views</th><th class="r">Keyword comments</th><th class="r">Emails captured</th><th>Leads from this video</th></tr></thead><tbody>'+
+ rows.map(function(x){var c=cmap[x.r.c];return '<tr><td><div class="cell">'+(reelLive(x.r)?'<a class="rlink" href="'+reelUrl(x.r)+'" target="_blank" rel="noopener noreferrer"><b style="max-width:300px">'+esc(x.r.t)+'</b></a>':'<b style="max-width:300px">'+esc(x.r.t)+'</b>')+'</div></td><td>'+pfTag(x.r.pf)+'</td><td>'+rpill(x.r.st)+'</td>'+(S.role==="mgmt"?'<td><div class="cell">'+av(c,26)+'<div><b style="font-size:13px">'+esc(c.name)+'</b><span style="color:var(--accent)">'+esc(c.handle)+'</span></div></div></td>':'')+
+ '<td class="r num">'+(x.r.st==="scheduled"?"—":fmt(x.r.views))+'</td><td class="r num">'+x.r.kw+'</td><td class="r num">'+x.em+'</td><td><div class="cell" style="min-width:140px"><div class="bar" style="flex:1"><i style="width:'+(x.n/maxn*100)+'%"></i></div><b class="num">'+x.n+'</b></div></td></tr>'}).join("")+
+ '</tbody></table></div></div><div style="display:flex;gap:22px;flex-wrap:wrap"></div>'
+}
+function vMessages(){
+ var L=scope(),R=scopeReels(),s=stats(L,R);
+ return head('Direct messages <span class="info" tabindex="0" role="button" aria-label="Rough estimate, up to 90% accuracy" data-tip="Rough estimate, up to 90% accuracy"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg></span>',"How many people wrote to you on Instagram and TikTok, how interested they were, and how many moved to WhatsApp.")+
+ '<div class="grid g4">'+kpi("Messages received",fmt(s.msgs),"Across "+s.leads+" conversations","GHL conversations")+
+ kpi("Positive",fmt(s.pos),pct(s.pos,s.leads)+" of conversations","AI labels each DM")+
+ kpi("Negative",fmt(s.neg),pct(s.neg,s.leads)+" of conversations","AI labels each DM")+
+ kpi("Moved to WhatsApp",fmt(s.wa),pct(s.wa,s.leads)+" shared a number","GHL tag when the number is shared")+'</div>'+
+ '<div class="grid g2"><div class="card pad"><div class="ch"><h3>Admissions or rentals</h3></div><div class="funnel">'+
+ [["Admissions",s.adm],["Rentals",s.leads-s.adm]].map(function(x){return '<div class="frow"><span>'+x[0]+'</span><div class="bar"><i style="width:'+(x[1]/(s.leads||1)*100)+'%"></i></div><span class="num">'+x[1]+'</span></div>'}).join("")+'</div></div>'+platCard(L)+'</div>'
+}
+function platCard(L){
+ var c={Instagram:0, WhatsApp:0, TikTok:0, Email:0, SMS:0}, t=0;
+ var cache = (typeof REAL_MESSAGES_CACHE !== 'undefined' ? REAL_MESSAGES_CACHE : window.REAL_MESSAGES_CACHE) || {};
+ Object.keys(cache).forEach(function(k){
+  var arr = cache[k];
+  if(Array.isArray(arr) && arr.length > 0){
+   arr.forEach(function(m){ if(m.ch){ c[m.ch] = (c[m.ch]||0)+1; t++; } });
+  }
+ });
+ if(t === 0){
+  L.forEach(function(l){
+   if(l.phone) c["WhatsApp"] = (c["WhatsApp"]||0)+1;
+   else c["Instagram"] = (c["Instagram"]||0)+1;
+   t++;
+  });
+ }
+ var names=["Instagram","WhatsApp","TikTok","Email","SMS"],mx=Math.max.apply(null,names.map(function(n){return c[n]||0}).concat([1]));
+ return '<div class="card pad"><div class="ch"><h3>Platform breakdown</h3><span class="faint">'+fmt(t)+' interactions</span></div><div class="funnel">'+names.map(function(n){var v=c[n]||0;return '<div class="frow" style="grid-template-columns:110px minmax(0,1fr) 90px"><span class="pf"><i style="background:'+CH[n]+'"></i>'+n+'</span><div class="bar"><i style="width:'+(v/mx*100)+'%"></i></div><span class="num">'+fmt(v)+' <small>'+pct(v,t)+'</small></span></div>'}).join("")+'</div></div>';
+}
+function leadTable(L,cr){
+ if(!L.length)return '<div class="empty">No leads match this filter.</div>';
+ return '<div class="scroll"><table class="tbl"><thead><tr><th>Lead</th><th>Location</th><th>Source reel</th>'+(S.role==="mgmt"?'<th>Creator</th>':'')+'<th>Counselor</th><th>Date</th><th>Status</th></tr></thead><tbody>'+
+ L.map(function(l){var c=cmap[l.c];return '<tr class="click" data-l="'+l.id+'" tabindex="0"><td><div class="cell"><div><b>'+esc(l.first)+'</b><span>'+l.intent+(l.level?' · '+l.level:'')+'</span></div></div></td><td>'+loc(l)+'</td><td><span style="display:block;max-width:300px">'+esc(rmap[l.reel].t)+'</span></td>'+
+ (S.role==="mgmt"?'<td><div class="cell">'+av(c,24)+'<div><b style="font-size:13px">'+esc(c.name.split(" ")[0])+'</b><span style="color:var(--accent)">'+esc(c.handle)+'</span></div></div></td>':'')+
+ '<td>'+(l.co?'<div class="cell">'+coAv(comap[l.co],24)+'<span style="color:var(--fg);font-size:13px">'+comap[l.co].name.split(" ")[0]+'</span></div>':'<span class="faint">Not yet</span>')+'</td><td class="num">'+l.date.toLocaleDateString("en-GB",{day:"numeric",month:"short"})+'</td><td>'+statusPill(l.status)+'</td></tr>'}).join("")+'</tbody></table></div>'
+}
+function isWon(l){return l.stage>=8&&!l.end}
+function enrolDate(l){return new Date(Math.min(now.getTime(),(l.mdate||l.date).getTime()+10*864e5))}
+function payDate(l){var n=parseInt(l.id.slice(1),10),d=l.stage>=9?3+n%12:(l.msgs%3===0?-(5+n%20):5+n%10);return new Date(now.getTime()+d*864e5)}
+function statusPill(s){var k=(s==="enrolled"||s==="payout due")?"good":s==="visa hold"?"warn":s==="lost"?"bad":s==="dropped"?"warn":s==="in conversation"?"":"acc";return '<span class="pill '+k+'">'+STAGE_LABEL[s]+'</span>'}
+function vLeads(){
+ var L=scope().filter(function(l){return (S.stage==="all"||l.status===S.stage)&&(!S.q||l.first.toLowerCase().indexOf(S.q)>-1||rmap[l.reel].t.toLowerCase().indexOf(S.q)>-1)}).sort(function(a,b){return b.date-a.date});
+ var all=Object.keys(STAGE_LABEL);
+ return head("Lead profiles","Every lead with the reel it came from, its current status, and the meeting summary and recording once a call has happened.",'<input class="sel" id="q" placeholder="Search name or reel" value="'+esc(S.q)+'" aria-label="Search leads" style="min-width:220px">')+
+ '<div class="seg" id="stg">'+['all'].concat(all).map(function(s){return '<button data-s="'+s+'" class="'+(S.stage===s?'on':'')+'">'+(s==="all"?"All":STAGE_LABEL[s])+'</button>'}).join("")+'</div>'+
+ '<div class="card">'+leadTable(L)+'</div>'
+}
+function boardHtml(L){
+ var COLS=ALLST,tone={enrolled:"good","payout due":"good",lost:"bad",dropped:"warn","visa hold":"warn"};
+ return '<div class="board">'+COLS.map(function(st){
+  var items=L.filter(function(l){return l.status===st}).sort(function(a,b){return b.date-a.date});
+  var cards=items.slice(0,6).map(function(l){var days=Math.max(1,Math.floor((now-l.date)/864e5));
+   return '<div class="kcard" data-l="'+l.id+'" tabindex="0"><b>'+esc(l.first)+'</b><div class="kmeta">'+l.intent+(l.level?' · '+l.level:'')+'</div><div class="kreel srcv">'+rthumb(rmap[l.reel],26)+'<span>'+esc(rmap[l.reel].t)+'</span></div><div class="kmeta">'+esc(l.budget)+'</div><div class="kmeta">'+loc(l)+'</div><div><span class="pill '+(l.docs?'good':'warn')+'">Docs '+(l.docs?'submitted':'not submitted')+'</span></div><div class="kfoot"><span class="faint">'+days+' days in funnel</span>'+(l.co?'<span style="margin-left:auto">'+coAv(comap[l.co],22)+'</span>':'')+'</div></div>'}).join("");
+  var more=items.length>6?'<button class="btn sm" data-more="'+st+'" style="align-self:center">See all '+items.length+'</button>':'';
+  return '<div class="kcol"><div class="khead"><span class="pill '+(tone[st]||'acc')+'">'+STAGE_LABEL[st]+'</span><b class="num">'+items.length+'</b></div><div class="kbody">'+(cards||'<div class="empty" style="padding:18px">Nothing here yet</div>')+more+'</div></div>'}).join("")+'</div>'}
+function listHtml(L){
+ if(!L.length)return '<div class="empty">No students at this stage yet.</div>';
+ return '<div class="lrows"><div class="lrow lhead"><span>Student</span><span class="lc-loc">Location</span><span class="lc-reel">Lead source</span><span class="lc-co">Counselor</span><span class="lc-docs">Documents</span><span class="lc-st">Status</span></div>'+
+ L.map(function(l){return '<div class="lrow click" data-l="'+l.id+'" tabindex="0"><div class="lc-name"><b>'+esc(l.first)+'</b><span>'+l.intent+(l.level?' · '+l.level:'')+'</span></div><div class="lc-loc">'+loc(l)+'</div><div class="lc-reel srcv">'+rthumb(rmap[l.reel],30)+'<span>'+esc(rmap[l.reel].t)+'</span></div><div class="lc-co">'+(l.co?'<div class="cell">'+coAv(comap[l.co],26)+'<span style="color:var(--fg);font-size:13px">'+esc(comap[l.co].name.split(" ")[0])+'</span></div>':'<span class="faint">Not yet</span>')+'</div><div class="lc-docs"><span class="pill '+(l.docs?'good':'warn')+'">'+(l.docs?'Submitted':'Not submitted')+'</span></div><div class="lc-st">'+statusPill(l.status)+'</div></div>'}).join("")+'</div>'}
+function vOutcomes(){
+ var L=scope(),R=scopeReels(),s=stats(L,R),inF=L.length-s.lost-s.drop-s.won;
+ var shown=L.filter(function(l){var k=rmap[l.reel].src||"video";return (S.stage==="all"||l.status===S.stage)&&(S.srcf==="all"||k===S.srcf)}).sort(function(a,b){return b.date-a.date});
+ var all=["all"].concat(ALLST);
+ var tog='<div class="seg" role="group" aria-label="Layout"><button data-lv="list" class="'+(S.leadView==="list"?'on':'')+'">'+ic("menu",15)+' List</button><button data-lv="board" class="'+(S.leadView==="board"?'on':'')+'">'+ic("grid",15)+' Board</button></div>';
+ return head("My leads","Every student who came through your content. Select a student to see their profile, journey, conversation and call.",tog)+
+ '<div class="grid g5">'+kpi("In the funnel",fmt(inF),"Still being worked")+kpi("Qualified rate",pct(s.qual,s.leads),s.qual+" qualified, "+(s.leads-s.qual)+" not qualified")+kpi("Meeting rate",pct(s.meet,s.qual),s.meet+" meetings from "+s.qual+" qualified")+
+ kpi("Enrolled",fmt(s.won),pct(s.won,s.leads)+" of all leads","comm","View commission")+kpi("Lost or dropped",fmt(s.lost+s.drop),s.lost+" lost, "+s.drop+" dropped","lost","See who and why")+'</div>'+
+ '<div class="seg segscroll" id="stg" role="group" aria-label="Stage">'+all.map(function(st){var n=st==="all"?L.length:L.filter(function(l){return l.status===st}).length;return '<button data-s="'+st+'" class="'+(S.stage===st?'on':'')+'">'+(st==="all"?"All":STAGE_LABEL[st])+' <span class="faint">'+n+'</span></button>'}).join("")+'</div>'+
+ '<div class="seg segscroll" role="group" aria-label="Lead source">'+[["all","All sources"],["video","Videos"],["dm","Direct messages"],["personal","Personal contacts"]].map(function(x){return '<button data-sf="'+x[0]+'" class="'+(S.srcf===x[0]?'on':'')+'">'+x[1]+'</button>'}).join("")+'</div>'+
+ (S.leadView==="board"?boardHtml(shown):listHtml(shown))
+}
+var VIEWS={calls:vCalls,overview:vOverview,reels:vReels,messages:vMessages,leads:vLeads,outcomes:vOutcomes};
+
+/* ---------- drawer ---------- */
+function coAv(c,sz){return c.photo?'<img src="'+c.photo+'" alt="" style="width:'+sz+'px;height:'+sz+'px;border-radius:50%;object-fit:cover">':'<span class="av" style="background:'+c.color+';width:'+sz+'px;height:'+sz+'px;font-size:'+Math.round(sz/3)+'px">'+c.name.split(" ").map(function(w){return w[0]}).join("")+'</span>'}
+function meetingHtml(l){
+ var c=comap[l.co],m=l.meet;
+ return '<div><h3 style="font-size:15px;margin-bottom:10px">Counselor call</h3><div class="note" style="display:flex;gap:14px;align-items:center">'+coAv(c,52)+'<div style="min-width:0;flex:1"><b style="font-size:15px">'+esc(c.name)+'</b><div class="faint">'+c.role+' · took this call</div></div><div style="text-align:right"><b>'+l.mdate.toLocaleDateString("en-GB",{day:"numeric",month:"short"})+'</b><div class="faint">'+l.rec+' min</div></div></div></div>'+
+ '<div><h3 style="font-size:15px;margin-bottom:8px">Meeting summary</h3><div class="note"><p style="margin:0 0 12px">'+esc(m.sum)+'</p><div class="faint" style="font-weight:600;margin-bottom:4px">Key points</div><ul style="margin:0 0 12px;padding-left:18px">'+m.pts.map(function(p){return '<li>'+esc(p)+'</li>'}).join("")+'</ul><div class="faint" style="font-weight:600;margin-bottom:4px">Next step</div><div>'+esc(m.next)+'</div></div></div>'+
+ '<div><h3 style="font-size:15px;margin-bottom:8px">Transcript</h3><div class="note tr">'+m.tr.map(function(t){return '<div class="tline"><span class="faint num">'+t[0]+'</span><b style="color:'+(t[1]==="Counselor"?'var(--accent)':'var(--fg)')+'">'+(t[1]==="Counselor"?esc(c.name.split(" ")[0]):'Student')+'</b><span>'+esc(t[2])+'</span></div>'}).join("")+'<div class="faint" style="margin-top:8px">Excerpt. The full transcript opens with the recording.</div></div></div>'+
+ '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn" id="rec">'+ic("play",16)+'Open recording</button><span class="faint">'+l.rec+' min · stored on the lead</span></div>'
+}
+var CH={Instagram:"#E1306C",TikTok:"#00B8C4","YouTube Shorts":"#FF3B30",WhatsApp:"#25D366",Email:"#F05A28",SMS:"#7A6AE6"};
+function pfOf(l){return parseInt(l.id.slice(1),10)%3===0?"TikTok":"Instagram"}
+function convo(l){
+ return [];
+}
+function dts(d){return d.toLocaleDateString("en-GB",{day:"numeric",month:"short"})}
+function tabProfile(l){
+ var r=rmap[l.reel],c=cmap[l.c];
+ return '<div class="kv"><span>Lead source</span><b class="srcv">'+rthumb(r,38)+'<span>'+esc(r.t)+(r.src==="dm"?" on "+pfOf(l):"")+(r.src?'<br><span class="faint">No video detected for this lead</span>':'')+'</span></b>'+(r.src?'':'<span>Reel views</span><b>'+(r.views?fmt(r.views)+' views':'Not live yet')+' · '+r.kw+' keyword comments</b>')+'<span>First contact</span><b>'+l.date.toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"})+'</b><span>Interest</span><b>'+l.intent+'</b><span>Documents submitted</span><b>'+(l.docs?'<span class="pill good">Yes</span>':'<span class="pill warn">No</span>')+'</b><span>Level</span><b>'+(l.level||'Not applicable')+'</b><span>Coming from</span><b>'+loc(l)+'</b><span>Budget</span><b>'+esc(l.budget)+'</b><span>Current studies</span><b>'+esc(l.acad.now)+'</b><span>Grades</span><b>'+esc(l.acad.grade)+'</b><span>English test</span><b>'+esc(l.acad.eng)+'</b><span>Email</span><b>'+(l.email?'Captured':'Not shared')+'</b><span>Counselor</span><b>'+(l.co?esc(comap[l.co].name):'Not assigned yet')+'</b>'+(l.stage>=5&&!l.end?'<span>Visa</span><b>'+(l.hold?'<span class="pill warn">On hold</span> '+l.egms+'% EGMS data sync':'<span class="pill good">In progress</span>')+'</b>':'')+(l.stage>=8&&!l.end?'<span>Payout due</span><b>'+payDate(l).toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"})+'</b>':'')+'</div>'}
+function tabJourney(l){
+ var offs=[0,1,3,6,10,14,20,26,32,38],span=Math.max(1,(now.getTime()-l.date.getTime())/864e5),f=Math.min(1,span/38);
+ var steps=STAGES.map(function(s,i){
+  var on=i<=l.stage,cur=!l.end&&i===l.stage,lab=(i===5&&l.hold)?STAGE_LABEL["visa hold"]:STAGE_LABEL[s];
+  var d=on?dts(new Date(l.date.getTime()+offs[i]*f*864e5)):"";
+  if(i===9&&on)d="Due "+dts(payDate(l));
+  var extra=(i===5&&l.hold&&cur)?'<div class="egms"><div class="bar"><i style="width:'+l.egms+'%"></i></div><span class="faint">'+l.egms+'% EGMS data sync</span></div>':'';
+  return '<div class="'+(on?'done':'')+(cur?' cur':'')+(i===5&&l.hold?' hold':'')+'"><i></i><span>'+lab+'</span>'+(cur?'<span class="nowpop">Current stage</span>':'')+(on?'<span class="faint" style="margin-left:auto">'+d+'</span>':'')+extra+'</div>'}).join("")+(l.end?'<div class="done cur"><i></i><span>'+STAGE_LABEL[l.end]+' · '+esc(l.reason)+'</span><span class="nowpop">Current stage</span></div>':'');
+ return '<div class="tl">'+steps+'</div><div class="note" style="margin-top:6px">Documents submitted: '+(l.docs?'<span class="pill good">Yes</span>':'<span class="pill warn">No</span>')+'</div>'}
+function tabConvo(l){
+ var key = l.phone || l.handle || l.id;
+ var cache = (typeof REAL_MESSAGES_CACHE !== 'undefined' ? REAL_MESSAGES_CACHE : window.REAL_MESSAGES_CACHE) || {};
+ var real = cache[key] || (l.phone && cache[l.phone]) || (l.handle && cache[l.handle]) || (l.id && cache[l.id]);
+
+ if (real === undefined) {
+  if (typeof fetchRealMessages === 'function') {
+   fetchRealMessages(l).then(function(rm){ if (S.dtab === "convo") renderDrawer(); });
+  }
+  return '<div class="chips2"><button class="chipb on" data-dch="All">All ...</button></div>'+
+   '<div class="empty" style="padding:60px 20px;text-align:center;color:var(--faint)">'+
+   '<div style="font-size:15px;color:var(--fg);font-weight:600;margin-bottom:6px">Loading real conversation...</div>'+
+   '<div>Fetching Instagram and WhatsApp messages for '+esc(l.first)+'</div></div>';
+ }
+
+ var M = real || [];
+ if (M.length === 0) {
+  return '<div class="chips2"><button class="chipb on" data-dch="All">All 0</button></div>'+
+   '<div class="empty" style="padding:60px 20px;text-align:center;color:var(--faint)">'+
+   '<div style="font-size:24px;margin-bottom:8px">💬</div>'+
+   '<div style="font-size:15px;font-weight:600;color:var(--fg);margin-bottom:4px">No Conversation History</div>'+
+   '<div>No messages found for '+esc(l.first)+' on Instagram or WhatsApp yet.</div></div>';
+ }
+
+ var chs = ["All","Instagram","WhatsApp","Email","SMS"];
+ var shown = M.filter(function(m){return S.dch==="All"||m.ch===S.dch});
+ return '<div class="chips2">'+chs.map(function(c){
+  var n = c==="All" ? M.length : M.filter(function(m){return m.ch===c}).length;
+  return '<button class="chipb'+(S.dch===c?' on':'')+'" data-dch="'+c+'">'+c+' '+n+'</button>'
+ }).join("")+'</div>'+
+ '<div class="thread">'+(shown.length === 0 ? '<div class="empty" style="padding:40px 20px;text-align:center;color:var(--faint)">No '+esc(S.dch)+' messages for this student.</div>' : shown.map(function(m){
+  return '<div class="msg '+m.dir+'"><div class="mh"><span class="chb" style="--c:'+(CH[m.ch]||'#999')+'">'+m.ch+'</span><b>'+esc(m.who)+'</b><span class="faint">'+esc(m.role)+'</span><span class="faint mt">'+dts(m.t)+', '+m.t.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})+'</span></div><div class="mb">'+esc(m.text)+'</div></div>'
+ }).join(""))+'</div>';
+}
+function tabCall(l){if(!l.meet)return '<div class="note muted">No call yet. The summary, transcript and recording appear here after the counselor call.</div>';var i=callInfo(l);return '<div class="note cc-over">'+ring(i.sc)+'<div style="flex:1;min-width:0"><div class="cc-pills" style="margin:0 0 6px"><span class="pill '+i.oc+'">'+i.out+' call</span><span class="pill '+i.qc+'">'+i.q+'</span></div><div class="faint">Next steps</div><div>'+esc(i.next)+'</div></div></div>'+meetingHtml(l)}
+function tabCallOld(l){return l.meet?meetingHtml(l):'<div class="note muted">No call yet. The summary, transcript and recording appear here after the counselor call.</div>'}
+function renderDrawer(){
+ var l=LEADS.filter(function(x){return x.id===S.dl})[0];if(!l)return;
+ var T=[["profile","Profile"],["journey","Journey"],["convo","Conversation"],["call","Call"]];
+ var body=S.dtab==="journey"?tabJourney(l):S.dtab==="convo"?tabConvo(l):S.dtab==="call"?tabCall(l):tabProfile(l);
+ var inner='<div class="sh"><h3>'+esc(l.first)+'</h3>'+statusPill(l.status)+'<button class="btn sm" id="cl" aria-label="Close">'+ic("x",16)+'</button></div><div class="dtabs" role="tablist">'+T.map(function(t){return '<button role="tab" aria-selected="'+(S.dtab===t[0])+'" data-dt="'+t[0]+'" class="'+(S.dtab===t[0]?'on':'')+'">'+t[1]+'</button>'}).join("")+'</div><div class="sb">'+body+'</div>';
+ var sh=$("dsheet");
+ if(sh){sh.innerHTML=inner;var act=sh.querySelector(".dtabs .on");if(act)act.focus({preventScroll:true})}
+ else $("ov").innerHTML='<div class="ov" id="ovb"><div class="sheet" id="dsheet" role="dialog" aria-label="Lead profile">'+inner+'</div></div>'}
+function drawer(id){
+ S.dl=id;S.dtab="profile";S.dch="All";
+ var l=LEADS.filter(function(x){return x.id===S.dl})[0];
+ if(l && typeof fetchRealMessages === "function"){ fetchRealMessages(l); }
+ renderDrawer();var c=$("cl");if(c)c.focus();
+}
+/* ---------- commission + lost pop-ups ---------- */
+var REASON_CAT={"Chose another consultant":"Competitor","Offer came from a different university":"Competitor","Visa refused":"Visa or eligibility","Budget did not fit":"Budget","Budget too low":"Budget","Stopped replying after the call":"Went quiet","Timeline moved to next intake":"Timeline","Family decision pending":"Family decision"};
+function commData(L){
+ return L.filter(isWon).sort(function(a,b){return a.date-b.date}).map(function(l){
+  var en=enrolDate(l),pay=payDate(l),amt=l.level==="Postgraduate"?800:600;
+  var st=pay<=now?"Paid":l.stage>=9?"Payout due":"Approved";
+  return {l:l,en:en,pay:pay,amt:amt,st:st}})}
+function modalShell(title,inner){$("ov").innerHTML='<div class="ov mid" id="cov"><div class="sheet cs wide" role="dialog" aria-label="'+title+'"><div class="sh"><h3>'+title+'</h3><button class="btn sm" id="cx" aria-label="Close">'+ic("x",16)+'</button></div><div class="sb">'+inner+'</div></div></div>'}
+function commModal(){
+ var D=commData(scope()),tot=D.reduce(function(a,d){return a+d.amt},0),paid=D.filter(function(d){return d.st==="Paid"}).reduce(function(a,d){return a+d.amt},0);
+ var next=D.filter(function(d){return d.st!=="Paid"}).sort(function(a,b){return a.pay-b.pay})[0];
+ var pill=function(s){return '<span class="pill '+(s==="Paid"?'good':(s==="Approved"||s==="Payout due")?'acc':'warn')+'">'+s+'</span>'};
+ modalShell("Your commission",
+ '<div class="grid g3 mini3"><div class="note"><span class="faint">Estimated total</span><b class="big num">RM '+fmt(tot)+'</b></div><div class="note"><span class="faint">Already paid</span><b class="big num">RM '+fmt(paid)+'</b></div><div class="note"><span class="faint">Next payout</span><b class="big">'+(next?next.pay.toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}):"None due")+'</b></div></div>'+
+ '<div class="lrows"><div class="lrow lhead crow"><span>Student</span><span>Enrolled</span><span>Commission</span><span>Payout date</span><span>Status</span></div>'+
+ D.map(function(d){return '<div class="lrow crow click" data-l="'+d.l.id+'" tabindex="0"><div class="lc-name"><b>'+esc(d.l.first)+'</b><span>'+(d.l.level||d.l.intent)+'</span></div><span class="num">'+dts(d.en)+'</span><b class="num">RM '+d.amt+'</b><span class="num">'+d.pay.toLocaleDateString("en-GB",{day:"numeric",month:"short",timeZone:"UTC"})+'</span><span>'+pill(d.st)+'</span></div>'}).join("")+'</div>'+
+ '<div><div class="flab">How commission works</div>'+
+ [["When a student counts","A student counts once they have landed in Malaysia, completed their initial enrolment (passport submitted and approved) and paid their first fees in Malaysia. Until then the commission shows as awaiting confirmation."],["How it is approved","After that confirmation the team approves the commission. You see it move from Awaiting confirmation to Approved."],["When you are paid","Commission is typically paid 15 to 30 days after the student has landed, enrolled and paid their first fees, and on average within about 15 days."],["Questions about a payout","Use Speak With Our Team to book a call with your creator manager and choose Commission Update."]].map(function(g){return '<details class="guide"><summary>'+g[0]+'</summary><p>'+g[1]+'</p></details>'}).join("")+'</div>'+
+ '<div class="faint">Amounts and payout dates are estimates (about 15 days after enrolment) until your commission agreement is connected.</div>')}
+function lostModal(){
+ var L=scope().filter(function(l){return l.status==="lost"||l.status==="dropped"});
+ var f=S.lf,shown=L.filter(function(l){return f==="all"||l.status===f}).sort(function(a,b){return b.date-a.date});
+ var cats={};shown.forEach(function(l){var k=REASON_CAT[l.reason]||"Other";cats[k]=(cats[k]||0)+1});
+ var arr=Object.keys(cats).map(function(k){return [k,cats[k]]}).sort(function(a,b){return b[1]-a[1]}),mx=arr.length?arr[0][1]:1;
+ var cnt=function(k){return k==="all"?L.length:L.filter(function(l){return l.status===k}).length};
+ modalShell("Lost or dropped",
+ '<div class="seg" role="group" aria-label="Filter">'+[["all","All"],["lost","Lost"],["dropped","Dropped"]].map(function(x){return '<button data-lf="'+x[0]+'" class="'+(f===x[0]?'on':'')+'">'+x[1]+' <span class="faint">'+cnt(x[0])+'</span></button>'}).join("")+'</div>'+
+ '<div><div class="flab">Main reasons</div><div class="reasons">'+arr.map(function(x){return '<div class="rrow"><span>'+esc(x[0])+'</span><b class="num r">'+x[1]+'</b><div class="bar bad"><i style="width:'+(x[1]/mx*100)+'%"></i></div></div>'}).join("")+'</div></div>'+
+ '<div><div class="flab">Who and why</div><div class="lrows">'+shown.map(function(l){return '<div class="lrow xrow click" data-l="'+l.id+'" tabindex="0"><div class="lc-name"><b>'+esc(l.first)+'</b><span>'+l.intent+(l.level?' · '+l.level:'')+'</span></div><div class="lc-loc">'+loc(l)+'</div><div><span class="pill '+(l.status==="lost"?'bad':'warn')+'">'+esc(REASON_CAT[l.reason]||"Other")+'</span><div class="faint" style="font-size:12.5px;margin-top:4px">'+esc(l.reason)+'</div></div><div class="lc-st">'+statusPill(l.status)+'</div></div>'}).join("")+'</div></div>')}
+function toast(t){var e=document.createElement("div");e.className="toast";e.textContent=t;document.body.appendChild(e);setTimeout(function(){e.remove()},2200)}
+
+
+/* ---------- speak with our team ---------- */
+var TOPICS=[["Commission update","Ask about payouts, rates or a pending commission."],["Video edits quality concern","Something is off with an edit, caption or cover."],["Just a catch up, 15 minutes","A short call to talk about how things are going."],["Urgent concern","Something that cannot wait. We reach out as soon as we can."]];
+var SLOTS=["10:00","11:00","12:00","14:00","15:00","16:00","17:00"];
+var GHL_CAL="";/* paste the GHL booking calendar link here once the team shares it */
+var C={topic:-1,date:"",slot:"",done:false};
+function weekdays(){var d=[],t=new Date();t.setHours(12,0,0,0);while(d.length<5){t=new Date(t.getTime()+864e5);if(t.getDay()%6)d.push(t)}return d}
+function cready(){var u=C.topic===3;return C.topic>-1&&(u||GHL_CAL||(C.date&&C.slot))}
+function concern(){
+ if(C.done){$("ov").innerHTML='<div class="ov mid" id="cov"><div class="sheet cs" role="dialog" aria-label="Request noted"><div class="sh"><h3>Request noted</h3><button class="btn sm" id="cx" aria-label="Close">'+ic("x",16)+'</button></div><div class="sb"><div class="note"><b>'+esc(TOPICS[C.topic][0])+'</b><p class="muted" style="margin:6px 0 0">'+(C.topic===3?"Our team will reach out as soon as possible.":"Preferred time: "+esc(C.date)+" at "+C.slot+" Malaysia time. The team confirms the slot with you.")+'</p></div><button class="btn pri" id="cx2" style="align-self:flex-start">Done</button></div></div></div>';return}
+ var u=C.topic===3,days=weekdays();
+ $("ov").innerHTML='<div class="ov mid" id="cov"><div class="sheet cs" role="dialog" aria-label="Speak with our team"><div class="sh"><h3>Speak with our team</h3><button class="btn sm" id="cx" aria-label="Close">'+ic("x",16)+'</button></div><div class="sb">'+
+ '<div><div class="flab">What is this about?</div><div class="topics">'+TOPICS.map(function(t,i){return '<button class="topic'+(C.topic===i?' on':'')+(i===3?' urgent':'')+'" data-ct="'+i+'"><b>'+t[0]+'</b><span>'+t[1]+'</span></button>'}).join("")+'</div></div>'+
+ (C.topic>-1?'<div><label class="flab" for="cmsg">Anything we should know first? <span class="faint">Optional</span></label><textarea class="sel" id="cmsg" rows="3" style="width:100%;resize:vertical" placeholder="A few words help us prepare"></textarea></div>':'')+
+ (C.topic>-1&&!u?(GHL_CAL?'<div><div class="flab">Book a time</div><a class="btn pri" href="'+GHL_CAL+'" target="_blank" rel="noopener noreferrer">Open booking calendar</a></div>':'<div><div class="flab">Pick a day</div><div class="chipsrow">'+days.map(function(d){var l=d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});return '<button class="chipb'+(C.date===l?' on':'')+'" data-cd="'+l+'">'+l+'</button>'}).join("")+'</div><div class="flab" style="margin-top:14px">Pick a time <span class="faint">Malaysia time'+(C.topic===2?', 15 minutes':'')+'</span></div><div class="chipsrow">'+SLOTS.map(function(t){return '<button class="chipb'+(C.slot===t?' on':'')+'" data-cs="'+t+'">'+t+'</button>'}).join("")+'</div></div>'):'')+
+ (u?'<div class="note">No need to pick a time. Urgent concerns are looked at first.</div>':'')+
+ '<button class="btn pri" id="csub"'+(cready()?'':' disabled')+' style="align-self:flex-start">'+(u?"Send urgent request":"Request this time")+'</button></div></div></div>'
+}
+/* ---------- wiring ---------- */
+function render(){side();top();$("page").innerHTML=VIEWS[S.view]();document.body.classList.remove("open");if(S.view==="overview")bindTrend()}
+document.addEventListener("click",function(e){
+ var t=e.target.closest("[data-pf],[data-sf],[data-cv],[data-cq],[data-lc],[data-rng],[data-met],[data-lv],[data-dt],[data-dch],[data-modal],[data-lf],#cbtn,[data-ct],[data-cd],[data-cs],#csub,#cx,#cx2,#cov,[data-rv],[data-v],[data-more],[data-r],[data-s],[data-l],#th,#mn,#cl,#rec,#ovb");if(!t)return;
+ if(t.id==="ovb"&&e.target!==t)return;
+ if(t.dataset.pf){S.pform=t.dataset.pf;refreshTrend()}
+ else if(t.dataset.sf){S.srcf=t.dataset.sf;render()}
+ else if(t.dataset.cv){S.callView=t.dataset.cv;render()}
+ else if(t.dataset.cq){S.cq=t.dataset.cq;render()}
+ else if(t.dataset.lc){S.dl=t.dataset.lc;S.dtab="call";S.dch="All";renderDrawer();var cb=$("cl");if(cb)cb.focus()}
+ else if(t.dataset.rng){S.rng=t.dataset.rng==="custom"?"custom":+t.dataset.rng;if(S.rng==="custom"&&!S.from){S.to=SER[SER.length-1].k;S.from=SER[SER.length-30].k}refreshTrend()}
+ else if(t.dataset.met){S.metric=t.dataset.met;refreshTrend()}
+ else if(t.dataset.lv){S.leadView=t.dataset.lv;render()}
+ else if(t.dataset.dt){S.dtab=t.dataset.dt;renderDrawer()}
+ else if(t.dataset.dch){S.dch=t.dataset.dch;renderDrawer()}
+ else if(t.dataset.modal){if(t.dataset.modal==="comm")commModal();else{S.lf="all";lostModal()}}
+ else if(t.dataset.lf){S.lf=t.dataset.lf;lostModal()}
+ else if(t.id==="cbtn"){C={topic:-1,date:"",slot:"",done:false};concern()}
+ else if(t.dataset.ct!==undefined){C.topic=+t.dataset.ct;if(C.topic===3){C.date="";C.slot=""}concern()}
+ else if(t.dataset.cd){C.date=t.dataset.cd;var m=$("cmsg")?$("cmsg").value:"";concern();if($("cmsg"))$("cmsg").value=m}
+ else if(t.dataset.cs){C.slot=t.dataset.cs;var m2=$("cmsg")?$("cmsg").value:"";concern();if($("cmsg"))$("cmsg").value=m2}
+ else if(t.id==="csub"){if(cready()){C.done=true;concern()}}
+ else if(t.id==="cx"||t.id==="cx2"||(t.id==="cov"&&e.target===t)){$("ov").innerHTML=""}
+ else if(t.dataset.rv){S.reelView=t.dataset.rv;render()}
+ else if(t.dataset.more){S.view="outcomes";S.stage=t.dataset.more;S.srcf="all";S.leadView="list";render();var g=$("stg");if(g)g.scrollIntoView({block:"start"})}
+ else if(t.dataset.v){S.view=t.dataset.v;S.stage="all";S.q="";render();window.scrollTo(0,0)}
+ else if(t.dataset.r){S.role=t.dataset.r;render()}
+ else if(t.dataset.s){S.stage=t.dataset.s;render()}
+ else if(t.dataset.l){drawer(t.dataset.l)}
+ else if(t.id==="th"){var d=document.documentElement,cur=d.getAttribute("data-theme")||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light");d.setAttribute("data-theme",cur==="dark"?"light":"dark")}
+ else if(t.id==="mn"){document.body.classList.toggle("open")}
+ else if(t.id==="cl"||t.id==="ovb"){$("ov").innerHTML=""}
+ else if(t.id==="rec"){toast("Recording opens in the meeting tool once it is connected")}
+});
+document.addEventListener("change",function(e){if(e.target.id==="cs"){S.creator=e.target.value;render()}if(e.target.id==="dfrom"){S.from=e.target.value;refreshTrend()}if(e.target.id==="dto"){S.to=e.target.value;refreshTrend()}});
+document.addEventListener("input",function(e){if(e.target.id==="q"){S.q=e.target.value.toLowerCase();var p=e.target.selectionStart;render();var q=$("q");q.focus();q.setSelectionRange(p,p)}});
+document.addEventListener("keydown",function(e){if(e.key==="Escape")$("ov").innerHTML="";if(e.key==="Enter"&&e.target.dataset){if(e.target.dataset.l)drawer(e.target.dataset.l);else if(e.target.dataset.lc)e.target.click();else if(e.target.dataset.modal)e.target.click()}});
+
+// =========================================================================
+// 🚀 SUPABASE LIVE INTEGRATION
+// =========================================================================
+window.supa = null;
+if (window.supabase && window.PORTAL_CONFIG && window.PORTAL_CONFIG.SUPABASE_ANON_KEY && !window.PORTAL_CONFIG.SUPABASE_ANON_KEY.includes("PASTE_")) {
+  try {
+    window.supa = window.supabase.createClient(window.PORTAL_CONFIG.SUPABASE_URL, window.PORTAL_CONFIG.SUPABASE_ANON_KEY);
+  } catch(e) {
+    console.warn("Supabase client init error:", e);
+  }
+}
+
+function stageNameToIdx(st) {
+  if (!st) return 0;
+  var s = String(st).toLowerCase();
+  if (s.includes("payout")) return 9;
+  if (s.includes("enrol")) return 8;
+  if (s.includes("arrive")) return 7;
+  if (s.includes("flight")) return 6;
+  if (s.includes("visa")) return 5;
+  if (s.includes("offer")) return 4;
+  if (s.includes("appl")) return 3;
+  if (s.includes("meet")) return 2;
+  if (s.includes("qualif")) return 1;
+  return 0;
+}
+
+window.REAL_MESSAGES_CACHE = {};
+
+window.IN_FLIGHT_FETCHES = window.IN_FLIGHT_FETCHES || {};
+async function fetchRealMessages(lead) {
+  if (!lead) return [];
+  var key = lead.phone || lead.handle || lead.id;
+  var cache = window.REAL_MESSAGES_CACHE = window.REAL_MESSAGES_CACHE || {};
+  if (cache[key] !== undefined) return cache[key];
+  if (window.IN_FLIGHT_FETCHES[key]) return window.IN_FLIGHT_FETCHES[key];
+
+  var fetchPromise = (async function() {
+    var allFound = [];
+
+    // 1. Try Supabase first
+    if (window.supa) {
+      try {
+        var cleanPhone = (lead.phone || "").replace(/\D/g, '');
+        var filters = [];
+        if (cleanPhone) {
+          filters.push("lead_phone.eq." + cleanPhone);
+          if (cleanPhone.length >= 10) filters.push("lead_phone.eq." + cleanPhone.slice(-10));
+        }
+        var h = (lead.handle ? lead.handle.replace('@','').trim() : '');
+        if (h && h !== 'lead') {
+          filters.push("ig_username.ilike.*" + h + "*");
+        }
+        if (lead.first && lead.first !== 'Student') {
+          filters.push("ig_username.ilike.*" + lead.first.trim() + "*");
+        }
+        if (lead.id && lead.id.length > 20) {
+          filters.push("lead_id.eq." + lead.id);
+        }
+
+        if (filters.length > 0) {
+          var activeCreator = (lead.creator_name || (typeof window.getActiveCreator === 'function' ? window.getActiveCreator() : 'yeba')).toLowerCase();
+        var mQuery = window.supa.from("messages").select("*").or(filters.join(","));
+        if (activeCreator) {
+          mQuery = mQuery.eq("creator_name", activeCreator);
+        }
+        var sRes = await mQuery.order("created_at", { ascending: true });
+          if (sRes.data && sRes.data.length > 0) {
+            allFound = sRes.data.map(function(m) {
+              return {
+                ch: m.channel || "Instagram",
+                who: m.sender_name || (m.sender_role === "Student" ? (lead.first || "Student") : "Creator"),
+                role: m.sender_role || "Student",
+                dir: (m.sender_role === "Student" ? "in" : "out"),
+                t: new Date(m.created_at || Date.now()),
+                text: m.message_text
+              };
+            });
+          }
+        }
+      } catch(e) { console.warn("Supabase check error:", e); }
+    }
+
+    // 2. If no messages in Supabase yet, dynamically auto-fetch from GHL
+    var cfg = window.PORTAL_CONFIG || {};
+    if (allFound.length === 0 && lead.ghl_contact_id && cfg.GHL_TOKEN && cfg.GHL_LOCATION_ID) {
+      try {
+        var cUrl = "https://services.leadconnectorhq.com/conversations/search?contactId=" + encodeURIComponent(lead.ghl_contact_id) + "&locationId=" + encodeURIComponent(cfg.GHL_LOCATION_ID);
+        var cResp = await fetch(cUrl, {
+          headers: { "Authorization": "Bearer " + cfg.GHL_TOKEN, "Version": "2021-04-15" }
+        });
+        var cData = await cResp.json();
+        var convs = cData.conversations || [];
+        if (convs.length > 0) {
+          var convId = convs[0].id;
+          var mUrl = "https://services.leadconnectorhq.com/conversations/" + convId + "/messages?limit=100";
+          var mResp = await fetch(mUrl, {
+            headers: { "Authorization": "Bearer " + cfg.GHL_TOKEN, "Version": "2021-04-15" }
+          });
+          var mData = await mResp.json();
+          var rawMsgs = (mData.messages && mData.messages.messages) || [];
+          rawMsgs.sort(function(a,b){ return new Date(a.dateAdded) - new Date(b.dateAdded); });
+
+          var toSave = [];
+          rawMsgs.forEach(function(m) {
+            var body = (m.body || m.text || "").trim();
+            if (!body) return;
+            var isIn = m.direction === "inbound";
+            var sender = isIn ? (m.from || lead.first || "Student") : (m.from || "Yeba");
+            var role = isIn ? "Student" : (sender.toLowerCase().includes("yeba") ? "Creator" : (m.source === "workflow" ? "Automation" : "Counselor"));
+            var ch = (m.messageType === 'TYPE_INSTAGRAM' || (m.meta && m.meta.ig)) ? 'Instagram' : (m.messageType === 'TYPE_WHATSAPP' ? 'WhatsApp' : 'Instagram');
+            var item = {
+              ch: ch,
+              who: sender,
+              role: role,
+              dir: isIn ? "in" : "out",
+              t: new Date(m.dateAdded),
+              text: body
+            };
+            allFound.push(item);
+            toSave.push({
+              channel: ch,
+              sender_name: sender,
+              sender_role: role,
+              message_text: body,
+              lead_phone: lead.phone || null,
+              ig_username: lead.handle ? lead.handle.replace('@','') : lead.first,
+              creator_name: (lead.creator_name || (typeof window.getActiveCreator === 'function' ? window.getActiveCreator() : 'yeba')),
+              created_at: m.dateAdded
+            });
+          });
+
+          // Background cache save to Supabase
+          if (window.supa && toSave.length > 0) {
+            window.supa.from("messages").insert(toSave).then(function(){});
+          }
+        }
+      } catch(err) {
+        console.warn("GHL auto-fetch error:", err);
+      }
+    }
+
+    allFound.sort(function(a,b){ return a.t - b.t; });
+    cache[key] = allFound;
+    if (lead.phone) cache[lead.phone] = allFound;
+    if (lead.handle) cache[lead.handle] = allFound;
+    if (lead.id) cache[lead.id] = allFound;
+    delete window.IN_FLIGHT_FETCHES[key];
+    return allFound;
+  })();
+
+  window.IN_FLIGHT_FETCHES[key] = fetchPromise;
+  return fetchPromise;
+}
+window.fetchRealMessages = fetchRealMessages;
+window.getActiveCreator = function() {
+  return (window.CURRENT_CREATOR || localStorage.getItem("easyintake_creator") || "yeba").toLowerCase();
+};
+
+window.setCurrentCreator = function(name) {
+  window.CURRENT_CREATOR = (name || "yeba").toLowerCase();
+  localStorage.setItem("easyintake_creator", window.CURRENT_CREATOR);
+  window.REAL_MESSAGES_CACHE = {};
+  if (typeof syncSupabaseLeads === "function") syncSupabaseLeads();
+};
+
+async function syncSupabaseLeads() {
+  if (!window.supa) return;
+  try {
+    var activeCreator = window.getActiveCreator();
+    var q = window.supa.from("leads").select("*");
+    if (S.role !== "mgmt") {
+      q = q.eq("creator_name", activeCreator);
+    }
+    var res = await q.order("created_at", { ascending: false });
+    if (res.data && res.data.length > 0) {
+      var realList = res.data.map(function(r, idx) {
+        var sIdx = stageNameToIdx(r.current_stage);
+        var d = new Date(r.created_at || Date.now());
+        var country = r.coming_from || "Bangladesh";
+        var city = country === "Pakistan" ? "Lahore" : "Dhaka";
+        return {
+          id: r.id || ("supa_" + idx),
+          ghl_contact_id: r.ghl_contact_id || "",
+          first: r.name || "Student",
+          handle: r.ig_username ? ("@" + r.ig_username.replace('@','')) : (r.phone ? ("@" + r.phone.slice(-6)) : "@lead"),
+          phone: r.phone || "",
+          c: (r.creator_name === "shayan" ? "c2" : r.creator_name === "farah" ? "c3" : "c1"),
+          creator_name: r.creator_name || activeCreator,
+          reel: "r1",
+          date: d,
+          stage: sIdx,
+          end: null,
+          email: !!r.email,
+          intent: r.interest || "Admissions",
+          msgs: 4,
+          sent: "positive",
+          level: r.level || "Postgraduate",
+          from: city + ", " + country,
+          budget: r.budget || "RM 18,000 per year",
+          acad: { now: r.current_studies || "Graduated", grade: r.grades || "Good", eng: r.english_test || "Not taken yet" },
+          docs: r.documents_submitted || false,
+          hold: false,
+          egms: 50,
+          status: STAGES[sIdx] || "in conversation",
+          isReal: true
+        };
+      });
+
+      var existingIds = {};
+      realList.forEach(function(r) { existingIds[r.id] = true; if(r.phone) existingIds[r.phone] = true; });
+      LEADS = realList;
+      render();
+    }
+  } catch(e) {
+    console.warn("Error fetching real leads:", e);
+  }
+}
+window.syncSupabaseLeads = syncSupabaseLeads;
+
+render();
+syncSupabaseLeads();
+setInterval(syncSupabaseLeads, 10000);
+})();
+</script>
+
+</body></html>
