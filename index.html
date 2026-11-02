@@ -656,7 +656,8 @@ function tabConvo(l){
 
  var M = real || [];
  if (M.length === 0) {
-  return '<div class="chips2"><button class="chipb on" data-dch="All">All 0</button></div>'+
+  return '<div class="chips2" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><button class="chipb on" data-dch="All">All 0</button>'+
+   '<button id="btn-sync-ghl" class="btn sm" style="margin-left:auto;font-size:12px;padding:3px 9px;border-radius:6px;cursor:pointer" title="Check GHL for latest messages">🔄 Refresh</button></div>'+
    '<div class="empty" style="padding:60px 20px;text-align:center;color:var(--faint)">'+
    '<div style="font-size:24px;margin-bottom:8px">💬</div>'+
    '<div style="font-size:15px;font-weight:600;color:var(--fg);margin-bottom:4px">No Conversation History</div>'+
@@ -665,12 +666,24 @@ function tabConvo(l){
 
  var chs = ["All","Instagram","WhatsApp","Email","SMS"];
  var shown = M.filter(function(m){return S.dch==="All"||m.ch===S.dch});
- return '<div class="chips2">'+chs.map(function(c){
+ return '<div class="chips2" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">'+chs.map(function(c){
   var n = c==="All" ? M.length : M.filter(function(m){return m.ch===c}).length;
   return '<button class="chipb'+(S.dch===c?' on':'')+'" data-dch="'+c+'">'+c+' '+n+'</button>'
- }).join("")+'</div>'+
+ }).join("")+
+ '<button id="btn-sync-ghl" class="btn sm" style="margin-left:auto;font-size:12px;padding:3px 9px;border-radius:6px;cursor:pointer;background:var(--card);border:1px solid var(--border);color:var(--fg)" title="Check GHL for latest messages">🔄 Refresh</button>'+
+ '</div>'+
  '<div class="thread">'+(shown.length === 0 ? '<div class="empty" style="padding:40px 20px;text-align:center;color:var(--faint)">No '+esc(S.dch)+' messages for this student.</div>' : shown.map(function(m){
-  return '<div class="msg '+m.dir+'"><div class="mh"><span class="chb" style="--c:'+(CH[m.ch]||'#999')+'">'+m.ch+'</span><b>'+esc(m.who)+'</b><span class="faint">'+esc(m.role)+'</span><span class="faint mt">'+dts(m.t)+', '+m.t.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})+'</span></div><div class="mb">'+esc(m.text)+'</div></div>'
+  var contentHtml = '';
+  var txt = m.text || '';
+  if (txt.startsWith('[Image Attachment]')) {
+    var url = txt.replace('[Image Attachment]', '').trim();
+    contentHtml = '<a href="'+esc(url)+'" target="_blank" rel="noopener"><img src="'+esc(url)+'" style="max-width:240px;max-height:240px;border-radius:8px;display:block;margin-top:4px;object-fit:cover" alt="Image Attachment"></a>';
+  } else if (txt.startsWith('http') && (txt.includes('.jpeg') || txt.includes('.jpg') || txt.includes('.png') || txt.includes('.webp') || txt.includes('conversations-assets'))) {
+    contentHtml = '<a href="'+esc(txt)+'" target="_blank" rel="noopener"><img src="'+esc(txt)+'" style="max-width:240px;max-height:240px;border-radius:8px;display:block;margin-top:4px;object-fit:cover" alt="Image"></a>';
+  } else {
+    contentHtml = esc(txt);
+  }
+  return '<div class="msg '+m.dir+'"><div class="mh"><span class="chb" style="--c:'+(CH[m.ch]||'#999')+'">'+m.ch+'</span><b>'+esc(m.who)+'</b><span class="faint">'+esc(m.role)+'</span><span class="faint mt">'+dts(m.t)+', '+m.t.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})+'</span></div><div class="mb">'+contentHtml+'</div></div>'
  }).join(""))+'</div>';
 }
 function tabCall(l){if(!l.meet)return '<div class="note muted">No call yet. The summary, transcript and recording appear here after the counselor call.</div>';var i=callInfo(l);return '<div class="note cc-over">'+ring(i.sc)+'<div style="flex:1;min-width:0"><div class="cc-pills" style="margin:0 0 6px"><span class="pill '+i.oc+'">'+i.out+' call</span><span class="pill '+i.qc+'">'+i.q+'</span></div><div class="faint">Next steps</div><div>'+esc(i.next)+'</div></div></div>'+meetingHtml(l)}
@@ -743,7 +756,15 @@ function render(){side();top();$("page").innerHTML=VIEWS[S.view]();document.body
 document.addEventListener("click",function(e){
  var t=e.target.closest("[data-pf],[data-sf],[data-cv],[data-cq],[data-lc],[data-rng],[data-met],[data-lv],[data-dt],[data-dch],[data-modal],[data-lf],#cbtn,[data-ct],[data-cd],[data-cs],#csub,#cx,#cx2,#cov,[data-rv],[data-v],[data-more],[data-r],[data-s],[data-l],#th,#mn,#cl,#rec,#ovb");if(!t)return;
  if(t.id==="ovb"&&e.target!==t)return;
- if(t.dataset.pf){S.pform=t.dataset.pf;refreshTrend()}
+ if(t.id==="btn-sync-ghl"){
+    var l=LEADS.filter(function(x){return x.id===S.dl})[0];
+    if(l){
+      t.innerText="Syncing...";
+      fetchRealMessages(l, true).then(function(){ renderDrawer(); });
+    }
+    return;
+  }
+  if(t.dataset.pf){S.pform=t.dataset.pf;refreshTrend()}
  else if(t.dataset.sf){S.srcf=t.dataset.sf;render()}
  else if(t.dataset.cv){S.callView=t.dataset.cv;render()}
  else if(t.dataset.cq){S.cq=t.dataset.cq;render()}
@@ -806,17 +827,17 @@ function stageNameToIdx(st) {
 window.REAL_MESSAGES_CACHE = {};
 
 window.IN_FLIGHT_FETCHES = window.IN_FLIGHT_FETCHES || {};
-async function fetchRealMessages(lead) {
+async function fetchRealMessages(lead, forceRefresh) {
   if (!lead) return [];
   var key = lead.phone || lead.handle || lead.id;
   var cache = window.REAL_MESSAGES_CACHE = window.REAL_MESSAGES_CACHE || {};
-  if (cache[key] !== undefined) return cache[key];
-  if (window.IN_FLIGHT_FETCHES[key]) return window.IN_FLIGHT_FETCHES[key];
+  if (!forceRefresh && cache[key] !== undefined) return cache[key];
+  if (!forceRefresh && window.IN_FLIGHT_FETCHES[key]) return window.IN_FLIGHT_FETCHES[key];
 
   var fetchPromise = (async function() {
     var allFound = [];
 
-    // 1. Try Supabase first
+    // 1. Load from Supabase first
     if (window.supa) {
       try {
         var cleanPhone = (lead.phone || "").replace(/\D/g, '');
@@ -838,11 +859,11 @@ async function fetchRealMessages(lead) {
 
         if (filters.length > 0) {
           var activeCreator = (lead.creator_name || (typeof window.getActiveCreator === 'function' ? window.getActiveCreator() : 'yeba')).toLowerCase();
-        var mQuery = window.supa.from("messages").select("*").or(filters.join(","));
-        if (activeCreator) {
-          mQuery = mQuery.eq("creator_name", activeCreator);
-        }
-        var sRes = await mQuery.order("created_at", { ascending: true });
+          var mQuery = window.supa.from("messages").select("*").or(filters.join(","));
+          if (activeCreator) {
+            mQuery = mQuery.eq("creator_name", activeCreator);
+          }
+          var sRes = await mQuery.order("created_at", { ascending: true });
           if (sRes.data && sRes.data.length > 0) {
             allFound = sRes.data.map(function(m) {
               return {
@@ -859,58 +880,76 @@ async function fetchRealMessages(lead) {
       } catch(e) { console.warn("Supabase check error:", e); }
     }
 
-    // 2. If no messages in Supabase yet, dynamically auto-fetch from GHL
+    // 2. Check GHL dynamically for missing or newer messages
     var cfg = window.PORTAL_CONFIG || {};
-    if (allFound.length === 0 && lead.ghl_contact_id && cfg.GHL_TOKEN && cfg.GHL_LOCATION_ID) {
+    if (cfg.GHL_TOKEN && cfg.GHL_LOCATION_ID) {
       try {
-        var cUrl = "https://services.leadconnectorhq.com/conversations/search?contactId=" + encodeURIComponent(lead.ghl_contact_id) + "&locationId=" + encodeURIComponent(cfg.GHL_LOCATION_ID);
+        var contactQuery = lead.ghl_contact_id ? ("contactId=" + encodeURIComponent(lead.ghl_contact_id)) : ("query=" + encodeURIComponent(lead.first || lead.handle || ""));
+        var cUrl = "https://services.leadconnectorhq.com/conversations/search?" + contactQuery + "&locationId=" + encodeURIComponent(cfg.GHL_LOCATION_ID);
         var cResp = await fetch(cUrl, {
           headers: { "Authorization": "Bearer " + cfg.GHL_TOKEN, "Version": "2021-04-15" }
         });
         var cData = await cResp.json();
         var convs = cData.conversations || [];
         if (convs.length > 0) {
-          var convId = convs[0].id;
-          var mUrl = "https://services.leadconnectorhq.com/conversations/" + convId + "/messages?limit=100";
-          var mResp = await fetch(mUrl, {
-            headers: { "Authorization": "Bearer " + cfg.GHL_TOKEN, "Version": "2021-04-15" }
-          });
-          var mData = await mResp.json();
-          var rawMsgs = (mData.messages && mData.messages.messages) || [];
-          rawMsgs.sort(function(a,b){ return new Date(a.dateAdded) - new Date(b.dateAdded); });
+          var conv = convs[0];
+          var convId = conv.id;
+          var latestLocal = allFound.length > 0 ? allFound[allFound.length - 1].t.getTime() : 0;
+          var convLast = conv.lastMessageDate ? new Date(conv.lastMessageDate).getTime() : 0;
 
-          var toSave = [];
-          rawMsgs.forEach(function(m) {
-            var body = (m.body || m.text || "").trim();
-            if (!body) return;
-            var isIn = m.direction === "inbound";
-            var sender = isIn ? (m.from || lead.first || "Student") : (m.from || "Yeba");
-            var role = isIn ? "Student" : (sender.toLowerCase().includes("yeba") ? "Creator" : (m.source === "workflow" ? "Automation" : "Counselor"));
-            var ch = (m.messageType === 'TYPE_INSTAGRAM' || (m.meta && m.meta.ig)) ? 'Instagram' : (m.messageType === 'TYPE_WHATSAPP' ? 'WhatsApp' : 'Instagram');
-            var item = {
-              ch: ch,
-              who: sender,
-              role: role,
-              dir: isIn ? "in" : "out",
-              t: new Date(m.dateAdded),
-              text: body
-            };
-            allFound.push(item);
-            toSave.push({
-              channel: ch,
-              sender_name: sender,
-              sender_role: role,
-              message_text: body,
-              lead_phone: lead.phone || null,
-              ig_username: lead.handle ? lead.handle.replace('@','') : lead.first,
-              creator_name: (lead.creator_name || (typeof window.getActiveCreator === 'function' ? window.getActiveCreator() : 'yeba')),
-              created_at: m.dateAdded
+          // If GHL has newer messages OR forceRefresh OR no messages locally yet
+          if (convLast > latestLocal || forceRefresh || allFound.length === 0) {
+            var mUrl = "https://services.leadconnectorhq.com/conversations/" + convId + "/messages?limit=50";
+            var mResp = await fetch(mUrl, {
+              headers: { "Authorization": "Bearer " + cfg.GHL_TOKEN, "Version": "2021-04-15" }
             });
-          });
+            var mData = await mResp.json();
+            var rawMsgs = (mData.messages && mData.messages.messages) || [];
 
-          // Background cache save to Supabase
-          if (window.supa && toSave.length > 0) {
-            window.supa.from("messages").insert(toSave).then(function(){});
+            var existingDates = {};
+            allFound.forEach(function(m) {
+              existingDates[m.t.toISOString()] = true;
+            });
+
+            var toSave = [];
+            rawMsgs.forEach(function(m) {
+              var body = (m.body || m.text || "").trim();
+              if (!body && m.attachments && m.attachments.length) {
+                body = m.attachments[0];
+              }
+              if (!body) return;
+              var dIso = new Date(m.dateAdded).toISOString();
+              if (existingDates[dIso]) return; // Deduplicate
+
+              var isIn = m.direction === "inbound";
+              var sender = isIn ? (m.from || lead.first || "Student") : (m.from || "Yeba");
+              var role = isIn ? "Student" : (sender.toLowerCase().includes("yeba") ? "Creator" : (m.source === "workflow" ? "Automation" : "Counselor"));
+              var ch = (m.messageType === 'TYPE_INSTAGRAM' || (m.meta && m.meta.ig)) ? 'Instagram' : (m.messageType === 'TYPE_WHATSAPP' ? 'WhatsApp' : 'Instagram');
+              var item = {
+                ch: ch,
+                who: sender,
+                role: role,
+                dir: isIn ? "in" : "out",
+                t: new Date(m.dateAdded),
+                text: body
+              };
+              allFound.push(item);
+              existingDates[dIso] = true;
+              toSave.push({
+                channel: ch,
+                sender_name: sender,
+                sender_role: role,
+                message_text: body,
+                lead_phone: lead.phone || null,
+                ig_username: lead.handle ? lead.handle.replace('@','') : lead.first,
+                creator_name: (lead.creator_name || (typeof window.getActiveCreator === 'function' ? window.getActiveCreator() : 'yeba')),
+                created_at: m.dateAdded
+              });
+            });
+
+            if (window.supa && toSave.length > 0) {
+              window.supa.from("messages").insert(toSave).then(function(){});
+            }
           }
         }
       } catch(err) {
