@@ -331,7 +331,15 @@ var RST={posted:["Posted","#22C55E"],archived:["Archived","#111111"],scheduled:[
 function rpill(st,img){var d=RST[st];return '<span class="rpill'+(img?' on-img':'')+'" style="--c:'+d[1]+'">'+d[0]+'<i></i></span>'}
 function reelUrl(r){if(r.url)return r.url;var h=cmap[r.c].handle.slice(1);return r.pf==="TikTok"?"https://www.tiktok.com/@"+h:r.pf==="YouTube Shorts"?"https://www.youtube.com/@"+h+"/shorts":"https://www.instagram.com/"+h+"/reels/"}
 function reelLive(r){return r.st==="posted"||r.st==="trial"||r.st==="archived"}
-function loc(l){var s=typeof l.from==="string"?l.from:"Dhaka, Bangladesh";var p=s.includes(", ")?s.split(", "):[s,s];return '<span class="loc"><span class="flag">'+(FLAGS[p[1]]||"")+'</span>'+esc(p[0])+'<span class="faint">, '+esc(p[1])+'</span></span>'}
+function loc(l){
+  var s = typeof l.from === "string" ? l.from : "";
+  if (!s || s === "Not specified" || s === "Dhaka, US" || s.endsWith(", US")) {
+    return '<span class="loc faint">Not specified</span>';
+  }
+  var p = s.includes(", ") ? s.split(", ") : [s, ""];
+  var flag = p[1] ? (FLAGS[p[1]] || FLAGS[p[0]] || "") : (FLAGS[p[0]] || "");
+  return '<span class="loc">' + (flag ? '<span class="flag">' + flag + '</span>' : '') + esc(p[0]) + (p[1] ? '<span class="faint">, ' + esc(p[1]) + '</span>' : '') + '</span>';
+}
 var seed=7;function rnd(){seed=(seed*16807)%2147483647;return (seed-1)/2147483646}
 var PSEUDO=[{id:"dm",c:"c1",t:"Direct message",views:0,kw:0,st:"none",src:"dm",n:22},{id:"personal",c:"c1",t:"Personal contact",views:0,kw:0,st:"none",src:"personal",n:9}];
 var LEADS=[];var now=new Date("2026-10-23");
@@ -981,6 +989,25 @@ window.setCurrentCreator = function(name) {
   if (typeof syncSupabaseLeads === "function") syncSupabaseLeads();
 };
 
+function parseLeadLocation(r) {
+  var p = (r.phone || "").replace(/\D/g, "");
+  if (p.startsWith("880")) return "Dhaka, Bangladesh";
+  if (p.startsWith("92")) return "Lahore, Pakistan";
+  if (p.startsWith("60")) return "Kuala Lumpur, Malaysia";
+  if (p.startsWith("91")) return "Delhi, India";
+  if (p.startsWith("971")) return "Dubai, UAE";
+  if (p.startsWith("966")) return "Riyadh, Saudi Arabia";
+  if (p.startsWith("44")) return "London, UK";
+
+  var cf = (r.coming_from || "").trim();
+  if (cf && cf !== "US" && cf !== "USA") {
+    if (cf.includes(",")) return cf;
+    var defaultCity = cf === "Pakistan" ? "Lahore" : cf === "Bangladesh" ? "Dhaka" : cf === "Malaysia" ? "Kuala Lumpur" : cf;
+    return defaultCity + ", " + cf;
+  }
+  return "Not specified";
+}
+
 async function syncSupabaseLeads() {
   if (!window.supa) return;
   try {
@@ -994,8 +1021,7 @@ async function syncSupabaseLeads() {
       var realList = res.data.map(function(r, idx) {
         var sIdx = stageNameToIdx(r.current_stage);
         var d = new Date(r.created_at || Date.now());
-        var country = r.coming_from || "Bangladesh";
-        var city = country === "Pakistan" ? "Lahore" : "Dhaka";
+        var reelSource = (r.lead_source && r.lead_source.toLowerCase().includes("video") && r.reel_id) ? r.reel_id : "dm";
         return {
           id: r.id || ("supa_" + idx),
           ghl_contact_id: r.ghl_contact_id || "",
@@ -1004,7 +1030,7 @@ async function syncSupabaseLeads() {
           phone: r.phone || "",
           c: (r.creator_name === "shayan" ? "c2" : r.creator_name === "farah" ? "c3" : "c1"),
           creator_name: r.creator_name || activeCreator,
-          reel: "r1",
+          reel: reelSource,
           date: d,
           stage: sIdx,
           end: null,
@@ -1013,7 +1039,7 @@ async function syncSupabaseLeads() {
           msgs: 4,
           sent: "positive",
           level: r.level || "Postgraduate",
-          from: city + ", " + country,
+          from: parseLeadLocation(r),
           budget: r.budget || "RM 18,000 per year",
           acad: { now: r.current_studies || "Graduated", grade: r.grades || "Good", eng: r.english_test || "Not taken yet" },
           docs: r.documents_submitted || false,
